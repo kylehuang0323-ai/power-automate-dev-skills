@@ -1,0 +1,104 @@
+{
+  "name": "Parallel Branch Processing",
+  "description": "Demonstrates how to use parallel branches in Power Automate to execute multiple independent operations concurrently, significantly reducing overall flow execution time.",
+  "skill_level": "advanced",
+  "trigger_type": "instant",
+  "connectors": ["SharePoint", "Office 365 Outlook", "Microsoft Teams", "HTTP"],
+  "key_features": [
+    "Parallel branches for concurrent execution",
+    "Apply to each with concurrency enabled",
+    "Performance optimization techniques",
+    "Joining results from parallel branches"
+  ],
+  "parallel_branches_concept": {
+    "description": "By default, Power Automate runs actions sequentially. Using parallel branches, you can run independent operations at the same time, reducing total execution time.",
+    "how_to_add": "Click the '+' between actions and select 'Add a parallel branch'",
+    "use_cases": [
+      "Sending notifications to multiple channels simultaneously",
+      "Fetching data from multiple independent sources",
+      "Running independent data transformations",
+      "Triggering multiple child flows at once"
+    ],
+    "limitations": [
+      "Parallel branches cannot share variable writes (use Compose instead)",
+      "Maximum of 50 concurrent branches",
+      "All branches must complete before the flow continues"
+    ]
+  },
+  "flow_steps": [
+    {
+      "step": 1,
+      "action": "Trigger: Manually trigger a flow",
+      "inputs": [{ "name": "orderId", "type": "text" }]
+    },
+    {
+      "step": 2,
+      "action": "Get order details from SharePoint",
+      "description": "Retrieve the order to process."
+    },
+    {
+      "step": 3,
+      "action": "PARALLEL BRANCHES - Execute all notification channels simultaneously",
+      "branches": [
+        {
+          "branch": "A - Email notification",
+          "action": "Send an email (Office 365 Outlook)",
+          "description": "Sends a confirmation email to the customer."
+        },
+        {
+          "branch": "B - Teams notification",
+          "action": "Post message in Teams channel",
+          "description": "Notifies the operations team in Teams."
+        },
+        {
+          "branch": "C - Update external system",
+          "action": "HTTP POST to external ERP",
+          "description": "Pushes the order status to an external system."
+        },
+        {
+          "branch": "D - Generate PDF receipt",
+          "action": "HTTP POST to PDF generation service",
+          "description": "Generates and stores a PDF receipt."
+        }
+      ],
+      "sequential_time_estimate": "~20 seconds",
+      "parallel_time_estimate": "~5 seconds"
+    },
+    {
+      "step": 4,
+      "action": "Update order status in SharePoint",
+      "description": "Runs after ALL parallel branches complete. Updates the status to 'Processed'.",
+      "run_after": "All parallel branches (Succeeded)"
+    }
+  ],
+  "apply_to_each_concurrency": {
+    "description": "Enable concurrency on Apply to each loops to process multiple items in parallel.",
+    "how_to_enable": "Click the '...' on Apply to each > Settings > Concurrency Control > On",
+    "max_concurrency": 50,
+    "recommended_values": {
+      "default": 1,
+      "moderate": 10,
+      "high": 20,
+      "maximum": 50
+    },
+    "warnings": [
+      "Higher concurrency may trigger API throttling (429 errors).",
+      "Do not write to the same variable inside a concurrent loop - use arrays carefully.",
+      "Test with moderate concurrency first and increase if no throttling occurs."
+    ]
+  },
+  "performance_tips": [
+    "Use parallel branches for independent operations (notifications, updates, etc.)",
+    "Enable Apply to each concurrency for bulk processing (start at 5-10, increase as needed)",
+    "Use Filter Query on data connectors to reduce the number of items returned",
+    "Use Select action to project only the fields you need before processing",
+    "Use Compose actions to pre-compute values instead of recalculating inside loops",
+    "Prefer batch operations over individual API calls when the connector supports them"
+  ],
+  "notes": [
+    "Parallel branches are ideal when operations are truly independent of each other.",
+    "If Branch B depends on the result of Branch A, they are NOT parallel - keep them sequential.",
+    "Use Compose (not variables) to store intermediate results in parallel contexts.",
+    "Monitor flow run times in the run history to identify bottlenecks."
+  ]
+}

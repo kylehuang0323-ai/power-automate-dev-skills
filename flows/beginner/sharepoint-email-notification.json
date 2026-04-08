@@ -1,0 +1,55 @@
+{
+  "name": "SharePoint Email Notification",
+  "description": "Sends an email notification when a new item is created in a SharePoint list.",
+  "skill_level": "beginner",
+  "trigger_type": "automated",
+  "connectors": ["SharePoint", "Office 365 Outlook"],
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "triggers": {
+      "When_an_item_is_created": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": {
+            "connection": {
+              "name": "@parameters('$connections')['sharepointonline']['connectionId']"
+            }
+          },
+          "method": "get",
+          "path": "/datasets/@{encodeURIComponent(encodeURIComponent('{{SHAREPOINT_SITE_URL}}'))}/tables/@{encodeURIComponent(encodeURIComponent('{{LIST_NAME}}')}}/onnewitems"
+        },
+        "recurrence": {
+          "frequency": "Minute",
+          "interval": 1
+        }
+      }
+    },
+    "actions": {
+      "Send_an_email_notification": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": {
+            "connection": {
+              "name": "@parameters('$connections')['office365']['connectionId']"
+            }
+          },
+          "method": "post",
+          "path": "/v2/Mail",
+          "body": {
+            "To": "{{RECIPIENT_EMAIL}}",
+            "Subject": "New item created: @{triggerBody()?['Title']}",
+            "Body": "<p>A new item has been added to the SharePoint list.</p><p><strong>Title:</strong> @{triggerBody()?['Title']}</p><p><strong>Created by:</strong> @{triggerBody()?['Author']?['DisplayName']}</p><p><strong>Created on:</strong> @{formatDateTime(triggerBody()?['Created'], 'dddd, MMMM d yyyy h:mm tt')}</p>",
+            "IsHtml": true
+          }
+        },
+        "runAfter": {}
+      }
+    }
+  },
+  "notes": [
+    "Replace {{SHAREPOINT_SITE_URL}} with the URL of your SharePoint site.",
+    "Replace {{LIST_NAME}} with the name of your SharePoint list.",
+    "Replace {{RECIPIENT_EMAIL}} with the email address to notify."
+  ]
+}

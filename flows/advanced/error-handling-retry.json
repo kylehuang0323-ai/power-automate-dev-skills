@@ -1,0 +1,124 @@
+{
+  "name": "Error Handling and Retry Pattern",
+  "description": "Demonstrates robust error handling in Power Automate using Scope actions, Run After settings, configurable retries, and structured error logging. A production-ready pattern for resilient flows.",
+  "skill_level": "advanced",
+  "trigger_type": "automated",
+  "connectors": ["SharePoint", "Office 365 Outlook", "HTTP"],
+  "key_features": [
+    "Scope actions for grouping and error isolation",
+    "Run After settings to handle failures gracefully",
+    "Retry policy configuration on HTTP/API actions",
+    "Structured error logging to SharePoint",
+    "Alert email on critical failure"
+  ],
+  "flow_steps": [
+    {
+      "step": 1,
+      "action": "Trigger: When an HTTP request is received",
+      "description": "Accepts a JSON payload to process."
+    },
+    {
+      "step": 2,
+      "action": "Scope: Main Processing",
+      "description": "All main business logic lives inside this scope.",
+      "inner_actions": [
+        {
+          "action": "HTTP - Call external API",
+          "description": "Makes an outbound HTTP call. Retry policy is configured here.",
+          "retry_policy": {
+            "type": "exponential",
+            "count": 4,
+            "interval": "PT7S",
+            "minimumInterval": "PT5S",
+            "maximumInterval": "PT1H"
+          }
+        },
+        {
+          "action": "Parse JSON",
+          "description": "Parses the API response body."
+        },
+        {
+          "action": "Create item in SharePoint",
+          "description": "Writes the processed data to SharePoint."
+        }
+      ]
+    },
+    {
+      "step": 3,
+      "action": "Scope: Error Handler",
+      "run_after_settings": {
+        "Main_Processing": ["Failed", "TimedOut", "Skipped"]
+      },
+      "description": "This scope only runs if the Main Processing scope fails.",
+      "inner_actions": [
+        {
+          "action": "Compose - Build error details",
+          "expression": "{\n  'flowName': 'Error Handling Demo',\n  'errorTime': '@{utcNow()}',\n  'errorMessage': '@{actions('Main_Processing')?['error']?['message']}',\n  'errorCode': '@{actions('Main_Processing')?['error']?['code']}',\n  'triggerBody': '@{triggerBody()}'\n}"
+        },
+        {
+          "action": "Create item in SharePoint - Error Log",
+          "description": "Logs the error details to a dedicated error log list.",
+          "fields": {
+            "Title": "Flow Error - @{formatDateTime(utcNow(), 'yyyy-MM-dd HH:mm')}",
+            "FlowName": "Error Handling Demo",
+            "ErrorMessage": "@{actions('Main_Processing')?['error']?['message']}",
+            "ErrorCode": "@{actions('Main_Processing')?['error']?['code']}",
+            "InputPayload": "@{string(triggerBody())}",
+            "Severity": "High"
+          }
+        },
+        {
+          "action": "Send an email - Alert on Failure",
+          "connector": "Office 365 Outlook",
+          "to": "{{OPS_TEAM_EMAIL}}",
+          "subject": "ALERT: Flow Failure - Error Handling Demo",
+          "body": "The 'Error Handling Demo' flow has failed.\n\nError: @{actions('Main_Processing')?['error']?['message']}\n\nPlease investigate immediately."
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Scope: Success Handler",
+      "run_after_settings": {
+        "Main_Processing": ["Succeeded"]
+      },
+      "description": "Optional: runs cleanup or confirmation steps on success.",
+      "inner_actions": [
+        {
+          "action": "Response - 200 OK",
+          "body": { "status": "success", "message": "Processing completed." }
+        }
+      ]
+    }
+  ],
+  "run_after_cheat_sheet": {
+    "description": "Configure 'Run After' on an action to control when it runs.",
+    "options": {
+      "is successful": "Run only if the previous action succeeded (default)",
+      "has failed": "Run only if the previous action failed",
+      "is skipped": "Run only if the previous action was skipped",
+      "has timed out": "Run only if the previous action timed out"
+    },
+    "tip": "You can select multiple options (e.g., failed + timed out) to handle multiple error states."
+  },
+  "retry_policy_types": {
+    "none": "No retries. Fails immediately on error.",
+    "fixed": "Retries a fixed number of times with a fixed interval.",
+    "exponential": "Retries with exponentially increasing wait times. Best for transient errors."
+  },
+  "error_log_list_columns": [
+    { "name": "Title", "type": "Single line of text" },
+    { "name": "FlowName", "type": "Single line of text" },
+    { "name": "ErrorMessage", "type": "Multiple lines of text" },
+    { "name": "ErrorCode", "type": "Single line of text" },
+    { "name": "InputPayload", "type": "Multiple lines of text" },
+    { "name": "Severity", "type": "Choice", "choices": ["Low", "Medium", "High", "Critical"] }
+  ],
+  "notes": [
+    "Replace {{OPS_TEAM_EMAIL}} with your operations team's email address.",
+    "The Scope action is the key building block for error handling in Power Automate.",
+    "Always set Run After on your error handler scope to catch Failed, TimedOut, and Skipped.",
+    "Exponential retry is preferred for HTTP/API calls to handle transient network issues.",
+    "Log errors to a persistent store (SharePoint, Dataverse, Azure Table) for auditability."
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "name": "Approval Workflow",
+  "description": "Routes a SharePoint list item through a multi-stage approval process. First approver reviews, then a second approver confirms. The item status is updated based on the outcome.",
+  "skill_level": "intermediate",
+  "trigger_type": "automated",
+  "connectors": ["SharePoint", "Approvals", "Office 365 Outlook"],
+  "key_features": [
+    "Multi-stage approval (two sequential approvers)",
+    "Conditional branching based on approval outcome",
+    "SharePoint item status update on approval or rejection",
+    "Approval comments captured and stored"
+  ],
+  "flow_steps": [
+    {
+      "step": 1,
+      "action": "Trigger: When an item is created or modified",
+      "connector": "SharePoint",
+      "description": "Fires whenever an item in the SharePoint list changes."
+    },
+    {
+      "step": 2,
+      "action": "Condition: Check if ApprovalStatus equals 'Pending Approval'",
+      "description": "Only proceed if the item needs approval. Prevents re-processing already-approved items."
+    },
+    {
+      "step": 3,
+      "action": "Start and wait for an approval (First Approver)",
+      "connector": "Approvals",
+      "inputs": {
+        "approvalType": "Basic",
+        "title": "First Approval Required: @{triggerBody()?['Title']}",
+        "assignedTo": "{{FIRST_APPROVER_EMAIL}}",
+        "details": "Title: @{triggerBody()?['Title']}\nDescription: @{triggerBody()?['Description']}\nSubmitted by: @{triggerBody()?['Author']?['DisplayName']}"
+      }
+    },
+    {
+      "step": 4,
+      "action": "Condition: Check if first approval outcome equals 'Approve'",
+      "true_branch": "Proceed to second approver",
+      "false_branch": "Update item status to Rejected"
+    },
+    {
+      "step": 5,
+      "action": "Start and wait for an approval (Second Approver)",
+      "connector": "Approvals",
+      "inputs": {
+        "approvalType": "Basic",
+        "title": "Final Approval Required: @{triggerBody()?['Title']}",
+        "assignedTo": "{{SECOND_APPROVER_EMAIL}}",
+        "details": "First approver comments: @{body('Start_and_wait_for_first_approval')?['responses']?[0]?['comments']}"
+      }
+    },
+    {
+      "step": 6,
+      "action": "Condition: Check if second approval outcome equals 'Approve'",
+      "true_branch": "Update item status to Approved",
+      "false_branch": "Update item status to Rejected"
+    },
+    {
+      "step": 7,
+      "action": "Update item",
+      "connector": "SharePoint",
+      "description": "Updates the ApprovalStatus and ApprovalComments columns based on the final outcome."
+    }
+  ],
+  "sharepoint_list_columns": [
+    { "name": "Title", "type": "Single line of text" },
+    { "name": "Description", "type": "Multiple lines of text" },
+    {
+      "name": "ApprovalStatus",
+      "type": "Choice",
+      "choices": ["Draft", "Pending Approval", "Approved", "Rejected"]
+    },
+    { "name": "ApprovalComments", "type": "Multiple lines of text" }
+  ],
+  "notes": [
+    "Replace {{FIRST_APPROVER_EMAIL}} with the first approver's email.",
+    "Replace {{SECOND_APPROVER_EMAIL}} with the second approver's email.",
+    "Replace {{SHAREPOINT_SITE_URL}} and {{LIST_NAME}} with your SharePoint details.",
+    "To start the approval process, change an item's ApprovalStatus to 'Pending Approval'.",
+    "The Approvals connector requires a Power Automate Premium license."
+  ]
+}

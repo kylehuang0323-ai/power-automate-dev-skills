@@ -1,0 +1,101 @@
+{
+  "name": "Scheduled Data Sync",
+  "description": "Runs on a schedule to retrieve records from a source system (SharePoint list) and sync them to a destination system (Dataverse table). Handles creates and updates, and logs the sync results.",
+  "skill_level": "intermediate",
+  "trigger_type": "scheduled",
+  "connectors": ["SharePoint", "Microsoft Dataverse", "Office 365 Outlook"],
+  "key_features": [
+    "Scheduled recurrence trigger",
+    "Retrieve and iterate over source records",
+    "Upsert pattern (create or update) in destination",
+    "Sync logging with counts and errors",
+    "Summary email on completion"
+  ],
+  "flow_steps": [
+    {
+      "step": 1,
+      "action": "Trigger: Recurrence",
+      "description": "Runs every night at 2:00 AM UTC.",
+      "recurrence": {
+        "frequency": "Day",
+        "interval": 1,
+        "startTime": "2024-01-01T02:00:00Z",
+        "timeZone": "UTC"
+      }
+    },
+    {
+      "step": 2,
+      "action": "Initialize variables",
+      "variables": [
+        { "name": "successCount", "type": "Integer", "value": 0 },
+        { "name": "errorCount", "type": "Integer", "value": 0 },
+        { "name": "errorLog", "type": "Array", "value": [] }
+      ]
+    },
+    {
+      "step": 3,
+      "action": "Get items from SharePoint",
+      "connector": "SharePoint",
+      "description": "Gets all items modified in the last 24 hours using a filter query.",
+      "filter_query": "Modified ge '@{addDays(utcNow(), -1)}'",
+      "top": 5000
+    },
+    {
+      "step": 4,
+      "action": "Apply to each - process each item",
+      "description": "Loops over all retrieved items. Concurrency set to 10 for performance.",
+      "concurrency": 10,
+      "inner_actions": [
+        {
+          "action": "List rows in Dataverse",
+          "description": "Check if the record already exists in Dataverse by external ID.",
+          "filter": "cr123_externalid eq '@{items('Apply_to_each')?['ID']}'"
+        },
+        {
+          "action": "Condition: Does record exist?",
+          "expression": "greater(length(body('List_rows')?['value']), 0)",
+          "true_branch": {
+            "action": "Update a row in Dataverse",
+            "description": "Update the existing record with new values."
+          },
+          "false_branch": {
+            "action": "Add a new row in Dataverse",
+            "description": "Create a new record in Dataverse."
+          }
+        },
+        {
+          "action": "Increment variable - successCount",
+          "description": "On success, increment the success counter.",
+          "run_after": ["Succeeded"]
+        },
+        {
+          "action": "Append to array variable - errorLog",
+          "description": "On failure, log the error details.",
+          "run_after": ["Failed", "TimedOut"]
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Send summary email",
+      "connector": "Office 365 Outlook",
+      "description": "Sends a sync summary email with success/error counts.",
+      "subject": "Data Sync Complete - @{formatDateTime(utcNow(), 'yyyy-MM-dd')}",
+      "body": "Sync completed.\nSuccessful: @{variables('successCount')}\nErrors: @{variables('errorCount')}"
+    }
+  ],
+  "expressions_used": [
+    "addDays(utcNow(), -1) - Filter to last 24 hours",
+    "formatDateTime() - Format the date for emails and logs",
+    "length() - Check if Dataverse row exists",
+    "greater() - Compare array length to 0",
+    "items('Apply_to_each') - Access current loop item"
+  ],
+  "notes": [
+    "Concurrency on Apply to each improves throughput but may hit API throttling limits.",
+    "Adjust the filter query to match your sync window and requirements.",
+    "The Dataverse connector requires a Power Apps or Power Automate Premium license.",
+    "Consider adding a Scope around the sync logic to catch and handle unexpected errors.",
+    "For large datasets (10,000+ records), consider using pagination with the SharePoint connector."
+  ]
+}

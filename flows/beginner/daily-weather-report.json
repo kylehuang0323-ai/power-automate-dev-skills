@@ -1,0 +1,87 @@
+{
+  "name": "Daily Weather Report",
+  "description": "Runs every morning on a schedule and sends a daily weather summary email using the MSN Weather connector.",
+  "skill_level": "beginner",
+  "trigger_type": "scheduled",
+  "connectors": ["MSN Weather", "Office 365 Outlook"],
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "triggers": {
+      "Recurrence": {
+        "type": "Recurrence",
+        "recurrence": {
+          "frequency": "Day",
+          "interval": 1,
+          "schedule": {
+            "hours": ["7"],
+            "minutes": [0]
+          },
+          "timeZone": "Eastern Standard Time"
+        }
+      }
+    },
+    "actions": {
+      "Get_current_weather": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": {
+            "connection": {
+              "name": "@parameters('$connections')['msnweather']['connectionId']"
+            }
+          },
+          "method": "get",
+          "path": "/currentconditions/@{encodeURIComponent('{{LOCATION}}')}",
+          "queries": {
+            "units": "Imperial"
+          }
+        },
+        "runAfter": {}
+      },
+      "Get_forecast": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": {
+            "connection": {
+              "name": "@parameters('$connections')['msnweather']['connectionId']"
+            }
+          },
+          "method": "get",
+          "path": "/forecast/daily/@{encodeURIComponent('{{LOCATION}}')}",
+          "queries": {
+            "units": "Imperial"
+          }
+        },
+        "runAfter": {
+          "Get_current_weather": ["Succeeded"]
+        }
+      },
+      "Send_weather_email": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": {
+            "connection": {
+              "name": "@parameters('$connections')['office365']['connectionId']"
+            }
+          },
+          "method": "post",
+          "path": "/v2/Mail",
+          "body": {
+            "To": "{{RECIPIENT_EMAIL}}",
+            "Subject": "Daily Weather Report - @{formatDateTime(utcNow(), 'MMMM d, yyyy')}",
+            "Body": "<h2>Good morning! Here is your weather report for {{LOCATION}}.</h2><p><strong>Current Conditions:</strong> @{body('Get_current_weather')?['responses']?['weather']?[0]?['current']?['cap']}</p><p><strong>Temperature:</strong> @{body('Get_current_weather')?['responses']?['weather']?[0]?['current']?['temp']}°F (Feels like @{body('Get_current_weather')?['responses']?['weather']?[0]?['current']?['feels']}°F)</p><p><strong>Humidity:</strong> @{body('Get_current_weather')?['responses']?['weather']?[0]?['current']?['humidity']}%</p><p><strong>Wind:</strong> @{body('Get_current_weather')?['responses']?['weather']?[0]?['current']?['windSpd']} mph @{body('Get_current_weather')?['responses']?['weather']?[0]?['current']?['windDir']}</p><p>Have a great day!</p>",
+            "IsHtml": true
+          }
+        },
+        "runAfter": {
+          "Get_forecast": ["Succeeded"]
+        }
+      }
+    }
+  },
+  "notes": [
+    "Replace {{LOCATION}} with your city/region (e.g., 'Seattle, WA').",
+    "Replace {{RECIPIENT_EMAIL}} with the email address to send the report to.",
+    "Adjust the recurrence schedule and time zone as needed."
+  ]
+}

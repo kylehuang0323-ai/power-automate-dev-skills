@@ -1,0 +1,137 @@
+{
+  "name": "Custom Connector Demo",
+  "description": "Demonstrates how to call a custom REST API connector. Includes authentication setup, calling GET and POST operations, and handling paginated responses.",
+  "skill_level": "advanced",
+  "trigger_type": "instant",
+  "connectors": ["Custom Connector", "Office 365 Outlook"],
+  "key_features": [
+    "Custom connector with OAuth2 or API Key authentication",
+    "Calling GET and POST operations",
+    "Handling paginated API responses",
+    "Parsing and transforming response data"
+  ],
+  "custom_connector_definition": {
+    "swagger_info": {
+      "title": "My Custom API",
+      "description": "Connects to a custom REST API",
+      "version": "1.0"
+    },
+    "authentication": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "X-API-Key"
+    },
+    "operations": [
+      {
+        "operationId": "GetProducts",
+        "summary": "Get all products",
+        "method": "GET",
+        "path": "/api/products",
+        "parameters": [
+          { "name": "page", "in": "query", "type": "integer" },
+          { "name": "pageSize", "in": "query", "type": "integer" },
+          { "name": "category", "in": "query", "type": "string" }
+        ]
+      },
+      {
+        "operationId": "CreateOrder",
+        "summary": "Create a new order",
+        "method": "POST",
+        "path": "/api/orders",
+        "requestBody": {
+          "productId": "string",
+          "quantity": "integer",
+          "customerId": "string"
+        }
+      }
+    ]
+  },
+  "flow_steps": [
+    {
+      "step": 1,
+      "action": "Trigger: Manually trigger a flow",
+      "inputs": [
+        { "name": "category", "type": "text" },
+        { "name": "customerId", "type": "text" }
+      ]
+    },
+    {
+      "step": 2,
+      "action": "Initialize variables",
+      "variables": [
+        { "name": "page", "type": "Integer", "value": 1 },
+        { "name": "allProducts", "type": "Array", "value": [] },
+        { "name": "hasMorePages", "type": "Boolean", "value": true }
+      ]
+    },
+    {
+      "step": 3,
+      "action": "Do until - paginate through all results",
+      "condition": "equals(variables('hasMorePages'), false)",
+      "description": "Loop until all pages have been retrieved.",
+      "inner_actions": [
+        {
+          "action": "GetProducts (Custom Connector)",
+          "parameters": {
+            "page": "@{variables('page')}",
+            "pageSize": 100,
+            "category": "@{triggerBody()?['text']}"
+          }
+        },
+        {
+          "action": "Append to array variable - allProducts",
+          "expression": "union(variables('allProducts'), body('GetProducts')?['items'])"
+        },
+        {
+          "action": "Increment variable - page"
+        },
+        {
+          "action": "Set variable - hasMorePages",
+          "expression": "greater(body('GetProducts')?['totalPages'], variables('page'))"
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Select - transform product data",
+      "description": "Use the Select action to reshape the array of products.",
+      "map": {
+        "productId": "@item()?['id']",
+        "productName": "@item()?['name']",
+        "price": "@item()?['price']",
+        "inStock": "@greater(item()?['stockQuantity'], 0)"
+      }
+    },
+    {
+      "step": 5,
+      "action": "Filter array - in-stock products only",
+      "expression": "equals(item()?['inStock'], true)"
+    },
+    {
+      "step": 6,
+      "action": "CreateOrder (Custom Connector)",
+      "description": "Creates an order for the first in-stock product.",
+      "parameters": {
+        "productId": "@{first(body('Filter_array'))?['productId']}",
+        "quantity": 1,
+        "customerId": "@{triggerBody()?['text_1']}"
+      }
+    }
+  ],
+  "custom_connector_setup_steps": [
+    "1. Go to Power Automate > Data > Custom Connectors > New custom connector",
+    "2. Choose 'Create from blank' and give it a name",
+    "3. Enter the API host URL and choose HTTPS",
+    "4. Configure authentication (API Key / OAuth2 / Basic)",
+    "5. Import a Swagger/OpenAPI definition or add operations manually",
+    "6. Test each operation in the connector wizard",
+    "7. Create a connection using the connector and use it in flows"
+  ],
+  "notes": [
+    "Custom connectors require a Power Automate Premium license.",
+    "The API must be accessible over the internet (or via an on-premises data gateway).",
+    "Always test the connector in the wizard before using it in a flow.",
+    "Version your custom connector to avoid breaking existing flows on updates.",
+    "Consider submitting your connector to Microsoft for certification if it is for a public service."
+  ]
+}

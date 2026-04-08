@@ -1,0 +1,73 @@
+{
+  "name": "Teams Message on Form Submission",
+  "description": "Posts a formatted message to a Microsoft Teams channel whenever a response is submitted to a Microsoft Form.",
+  "skill_level": "beginner",
+  "trigger_type": "automated",
+  "connectors": ["Microsoft Forms", "Microsoft Teams"],
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "triggers": {
+      "When_a_new_response_is_submitted": {
+        "type": "ApiConnectionWebhook",
+        "inputs": {
+          "host": {
+            "connection": {
+              "name": "@parameters('$connections')['microsoftforms']['connectionId']"
+            }
+          },
+          "path": "/formapi/api/forms/@{encodeURIComponent('{{FORM_ID}}')}/triggers/newResponseNotification",
+          "body": {
+            "eventType": "responseAdded",
+            "notificationUrl": "@{listCallbackUrl()}"
+          }
+        }
+      }
+    },
+    "actions": {
+      "Get_response_details": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": {
+            "connection": {
+              "name": "@parameters('$connections')['microsoftforms']['connectionId']"
+            }
+          },
+          "method": "get",
+          "path": "/formapi/api/forms('@{encodeURIComponent('{{FORM_ID}}')})/responses",
+          "queries": {
+            "response_id": "@triggerBody()?['resourceData']?['responseId']"
+          }
+        },
+        "runAfter": {}
+      },
+      "Post_message_to_Teams": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": {
+            "connection": {
+              "name": "@parameters('$connections')['teams']['connectionId']"
+            }
+          },
+          "method": "post",
+          "path": "/v3/beta/teams/@{encodeURIComponent('{{TEAM_ID}}')}/channels/@{encodeURIComponent('{{CHANNEL_ID}}')}/messages",
+          "body": {
+            "body": {
+              "contentType": "html",
+              "content": "<p><strong>📋 New Form Response Received</strong></p><p><strong>Submitted by:</strong> @{body('Get_response_details')?['value']?[0]?['responder']}</p><p><strong>Submitted on:</strong> @{formatDateTime(body('Get_response_details')?['value']?[0]?['submitDate'], 'f')}</p><p>View the full response in <a href='https://forms.office.com/'>Microsoft Forms</a>.</p>"
+            }
+          }
+        },
+        "runAfter": {
+          "Get_response_details": ["Succeeded"]
+        }
+      }
+    }
+  },
+  "notes": [
+    "Replace {{FORM_ID}} with the ID of your Microsoft Form (found in the form's URL).",
+    "Replace {{TEAM_ID}} with the ID of your Microsoft Teams team.",
+    "Replace {{CHANNEL_ID}} with the ID of the channel to post messages to.",
+    "Team and Channel IDs can be obtained by right-clicking on the team/channel in Teams and selecting 'Get link to channel'."
+  ]
+}
