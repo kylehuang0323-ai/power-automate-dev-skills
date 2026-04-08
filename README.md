@@ -4,6 +4,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+---
+
 ## Table of Contents
 
 1. [Fundamentals](#1---fundamentals)
@@ -17,9 +19,11 @@
 9. [Debugging Tips](#9---debugging-tips)
 10. [Best Practices](#10---best-practices)
 11. [Expert-Level Development](#11---expert-level-development)
-12. [DLP DLP Policies & Compliance Boundaries](#12-dlp---dlp-policies--compliance-boundaries)
+12. [DLP Policies & Compliance Boundaries](#12-dlp---dlp-policies--compliance-boundaries)
 13. [Troubleshooting FAQ](#13---troubleshooting-faq)
 14. [Ecosystem Integration & Frontier Capabilities](#14---ecosystem-integration--frontier-capabilities)
+
+---
 
 ## Fundamentals
 
@@ -36,9 +40,13 @@
 ### Core Concepts
 
 - **Trigger**: The event that starts a Flow; each Flow has exactly one trigger
+
 - **Action**: Each step in a Flow (read data, send email, condition, etc.)
+
 - **Connection**: Authenticated link between Flow and external services, stored under user account
+
 - **Dynamic content**: Output from previous steps, referenceable in later steps
+
 - **Expression**: Functions to process data (string concat, date math, etc.)
 
 ### Run Modes
@@ -49,6 +57,8 @@
 | Failed | A step errored and was not caught |
 | Cancelled | Stopped by Terminate action or user |
 | Running | Flow is currently executing |
+
+---
 
 ## Trigger Types
 
@@ -67,17 +77,17 @@ Add condition expressions in trigger settings — **Flow only runs when conditio
 
 ```
 # Single condition
-@equals(triggerBody()?['Status']?['Value'], 'Available')
+@equals(triggerBody?['Status']?['Value'], 'Available')
 
 # Multiple conditions (AND logic)
-@equals(triggerBody()?['ApprovalStatus']?['Value'], 'Returned')
-@equals(triggerBody()?['ActualReturnDate'], null)
+@equals(triggerBody?['ApprovalStatus']?['Value'], 'Returned')
+@equals(triggerBody?['ActualReturnDate'], null)
 
 # Not empty check
-@not(empty(triggerBody()?['Title']))
+@not(empty(triggerBody?['Title']))
 
 # Contains keyword
-@contains(triggerBody()?['Title'], 'Urgent')
+@contains(triggerBody?['Title'], 'Urgent')
 ```
 
 > ⚠️ **AND** true
@@ -91,6 +101,8 @@ Configure in trigger **Settings → Concurrency Control**:
 - **Parallelism = N**: Allow N instances concurrently
 
 > Asset management scenario **must be 1** to prevent double-lending
+
+---
 
 ## Common Connectors
 
@@ -146,13 +158,15 @@ Modified gt '2024-01-01T00:00:00Z'
 | HTTP | Call any REST API |
 | HTTP + Swagger | Call based on OpenAPI spec |
 
+---
+
 ## Expressions & Functions Reference
 
 ### String Functions
 
 | Function | Description | Example |
 |---|---|---|
-| `concat(str1, str2, ...)` | Concatenate strings | `concat('Borrow - ', triggerBody()?['Title'])` → `Borrow - Drill` |
+| `concat(str1, str2, ...)` | Concatenate strings | `concat('Borrow - ', triggerBody ?['Title'])` → `Borrow - Drill` |
 | `substring(str, start, length)` | Extract substring | `substring('Hello World', 6, 5)` → `World` |
 | `replace(str, old, new)` | Replace | `replace('2024-01-01', '-', '/')` → `2024/01/01` |
 | `split(str, delimiter)` | Split into array | `split('a,b,c', ',')` → `["a","b","c"]` |
@@ -169,14 +183,14 @@ Modified gt '2024-01-01T00:00:00Z'
 
 | Function | Description | Example |
 |---|---|---|
-| `utcNow()` | Current UTC time | `2024-03-15T08:30:00Z` |
+| `utcNow ` | Current UTC time | `2024-03-15T08:30:00Z` |
 | `utcNow('yyyy-MM-dd')` | Format current time | `2024-03-15` |
-| `addDays(timestamp, days)` | Add days | `addDays(utcNow(), 7)` → 7 |
-| `addHours(timestamp, hours)` | Add hours | `addHours(utcNow(), 8)` → 8() |
-| `addMinutes(timestamp, mins)` | Add minutes | `addMinutes(utcNow(), 30)` |
-| `subtractFromTime(ts, interval, unit)` | Subtract time | `subtractFromTime(utcNow(), 1, 'Day')` |
-| `formatDateTime(ts, format)` | Format date | `formatDateTime(utcNow(), 'yyyyMMdd')` |
-| `convertFromUtc(ts, timezone)` | Convert from UTC | `convertFromUtc(utcNow(), 'China Standard Time')` |
+| `addDays(timestamp, days)` | Add days | `addDays(utcNow , 7)` → 7 |
+| `addHours(timestamp, hours)` | Add hours | `addHours(utcNow , 8)` → 8 |
+| `addMinutes(timestamp, mins)` | Add minutes | `addMinutes(utcNow , 30)` |
+| `subtractFromTime(ts, interval, unit)` | Subtract time | `subtractFromTime(utcNow , 1, 'Day')` |
+| `formatDateTime(ts, format)` | Format date | `formatDateTime(utcNow , 'yyyyMMdd')` |
+| `convertFromUtc(ts, timezone)` | Convert from UTC | `convertFromUtc(utcNow , 'China Standard Time')` |
 | `convertToUtc(ts, timezone)` | Convert to UTC | `convertToUtc('2024-03-15 16:30', 'China Standard Time')` |
 | `ticks(timestamp)` | Convert to ticks | For precise comparison |
 | `dateDifference(end, start)` | Time difference | `2.05:30:00` |
@@ -238,15 +252,15 @@ Modified gt '2024-01-01T00:00:00Z'
 
 | Function | Description |
 |---|---|
-| `triggerBody()` | Trigger output body |
-| `triggerOutputs()` | Trigger full outputs |
+| `triggerBody ` | Trigger output body |
+| `triggerOutputs ` | Trigger full outputs |
 | `body('actionName')` | Specific action output body |
 | `outputs('actionName')` | Specific action full outputs |
 | `actions('actionName')` | Action info including status |
 | `result('scopeName')` | Array of all action results in scope |
 | `items('Apply_to_each')` | Current item in loop |
 | `variables('varName')` | Get variable value |
-| `workflow()` | Current Flow metadata |
+| `workflow ` | Current Flow metadata |
 | `parameters('paramName')` | Flow parameter value |
 
 ### SharePoint People Column Claims Format
@@ -256,8 +270,10 @@ Modified gt '2024-01-01T00:00:00Z'
 i:0#.f|membership|user@domain.com
 
 # Build in expression
-concat('i:0#.f|membership|', triggerBody()?['headers']?['x-ms-user-email'])
+concat('i:0#.f|membership|', triggerBody?['headers']?['x-ms-user-email'])
 ```
+
+---
 
 ## Variables & Data Operations
 
@@ -301,21 +317,22 @@ concat('i:0#.f|membership|', triggerBody()?['headers']?['x-ms-user-email'])
 > 💡 `Compose` ""
 > **Tip**: `Compose` is more flexible than variables — no top-level restriction
 
+---
+
 ## Flow Control
 
 ### Condition
-
 ```
 : Status Value == "Available"
-  ├──  (If yes): ...
-  └──  (If no): ...
+ ├── (If yes): ...
+ └── (If no): ...
 ```
 
- Use expressions for complex logic:
+ / Use expressions for complex logic:
 ```
 @and(
-  equals(triggerBody()?['Status']?['Value'], 'Available'),
-  greater(triggerBody()?['Quantity'], 0)
+ equals(triggerBody?['Status']?['Value'], 'Available'),
+ greater(triggerBody?['Quantity'], 0)
 )
 ```
 
@@ -323,10 +340,10 @@ concat('i:0#.f|membership|', triggerBody()?['headers']?['x-ms-user-email'])
 
 ```
 Switch: ApprovalStatus Value
-  ├── Case "Approved": ...
-  ├── Case "Rejected": ...
-  ├── Case "Returned": ...
-  └── Default: 
+ ├── Case "Approved": ...
+ ├── Case "Rejected": ...
+ ├── Case "Returned": ...
+ └── Default:
 ```
 
 > 💡 3+ Switch Condition
@@ -334,10 +351,10 @@ Switch: ApprovalStatus Value
 
 ### Apply to each
 
- Iterate over each element in an array:
+ / Iterate over each element in an array:
 ```
 Apply to each: body('Get_items')?['value']
-  └── : items('Apply_to_each')
+ └── : items('Apply_to_each')
 ```
 
 **Concurrency setting**: (50)
@@ -345,11 +362,11 @@ Default is sequential; can set parallelism (max 50)
 
 ### Do until
 
- Loop until condition is met:
+ / Loop until condition is met:
 ```
 Do until: variables('retryCount') >= 3
-  ├──  A
-  └──  retryCount
+ ├── A
+ └── retryCount
 ```
 
 > ⚠️ 60
@@ -357,40 +374,36 @@ Do until: variables('retryCount') >= 3
 
 ### Scope
 
-### Scope
-
-Group multiple steps together:
-- Collapse for cleanliness
+ / Group multiple steps together:
+- Flow / Collapse for cleanliness
 - Unified error handling
 - Configurable "run after" conditions
 
 ### Terminate
-
-Immediately end Flow with a status:
+ Flow / Immediately end Flow with a status:
 - Succeeded
-- Failed
+- Failed —
 - Cancelled
 
 ### Delay
-
-Pause for a specified duration:
-- **Delay**: Fixed time duration (hours/minutes/seconds)
-- **Delay until**: Wait until a specific datetime
+ / Pause for specified duration:
+- (Delay): //// Fixed duration
+- (Delay until): / Until specific datetime
 
 ### Parallel Branch
-
 Create multiple parallel execution paths; all branches complete before the next step.
 
 ```
-  │
-  ├──┬── Branch A: (2s)
-  │  │
-  │  ├── Branch B: (3s)
-  │  │
-  │  └── Branch C: (1s)
-  │
-  ▼ (Continue after all complete)
-  Total ≈ 3s (not 6s sequential)
+ │
+ ├──┬── A: (2)
+ │ │
+ │ ├── B: (3)
+ │ │
+ │ └── C: (1)
+ │
+ ▼ ( / Continue after all complete)
+ ≈ 3 ( 6)
+ Total ≈ 3s (not 6s sequential)
 ```
 
 **How to create:**
@@ -399,14 +412,15 @@ Create multiple parallel execution paths; all branches complete before the next 
 > ⚠️ Compose
 > Cannot use the same variable in parallel branches (race condition); use Compose instead
 
-> 💡 **vs Apply to each**: Apply to each
-> Parallel branches = fixed number of different operations; Apply to each concurrency = same operation on multiple items
+> 💡 **Parallel branches vs Apply to each**: Parallel branches = fixed number of different operations; Apply to each concurrency = same operation on multiple items
+
+---
 
 ## Error Handling & Reliability
 
 ### Configure Run After
 
- Configure when an action runs:
+Configure when an action runs based on the outcome of a previous action:
 
 | Condition | Description |
 |---|---|
@@ -418,30 +432,29 @@ Create multiple parallel execution paths; all branches complete before the next 
 ### Scope + Run After = Try-Catch Pattern
 
 ```
-Scope_Try (Main operations):
-  ├── Action A
-  ├── Action B
-  └── Action C
+Scope_Try ( / Main operations):
+ ├── A
+ ├── B
+ └── C
 
-Scope_Catch (Run after: "has failed" only):
-  ├── Get errors: result('Scope_Try')
-  └── Send notification
+Scope_Catch (: "" / Run after: "has failed" only):
+ ├── : result('Scope_Try')
+ └──
 ```
 
-**Get error details from Scope:**
+** Scope / Get error details from Scope:**
 ```
 # Get all action results
 result('Scope_Try')
 
 # Filter failed actions
 @body('Filter_array')
-  From: result('Scope_Try')
-  Where: @equals(item()?['status'], 'Failed')
+ From: result('Scope_Try')
+ Where: @equals(item?['status'], 'Failed')
 ```
 
 ### Retry Policy
-
- Configure in action settings:
+ / Configure in action settings:
 
 | Policy | Description |
 |---|---|
@@ -454,14 +467,16 @@ result('Scope_Try')
 
 ```
 Scope_BorrowActions:
-  ├── : Status → "In use" ()
-  └── : Service Requests ()
+ ├── : Status → "In use"
+ └── : Service Requests
 
 Scope_Rollback ( BorrowActions ):
-  └── : Status → "Available" ()
+ └── : Status → "Available"
 ```
 
 > This ensures the tool won't get stuck in "In use" if creating the request fails
+
+---
 
 ## Performance & Limits
 
@@ -470,12 +485,12 @@ Scope_Rollback ( BorrowActions ):
 | Limit | Value | Description |
 |---|---|---|
 | Flow duration | 30 min | Max single run duration |
-| Actions per run | 100,000 | Max actions per run |
-| Loop iterations | 5,000 (60 for Do Until) | Max loop iterations |
+| | 100,000/ | Max actions per run |
+| | 5,000 (60) | Apply to each / Do until / Max loop iterations |
 | Apply to each | 50 | Max parallelism |
-| Outbound requests | 500 | Concurrent outbound requests |
-| Data per action | 104 MB | Max data size per action |
-| Expression length | 8,192 | Max expression length |
+| | 500 | Concurrent outbound requests |
+| | 104 MB | Max data size per action |
+| | 8,192 | Max expression length |
 | SharePoint Get items | 5,000 | Max items returned |
 
 ### SharePoint Delegation Limits
@@ -502,23 +517,25 @@ Scope_Rollback ( BorrowActions ):
 
 ### License Model Comparison
 
-| Feature | Free | Microsoft 365 | Per User Plan | Per Flow Plan |
+| Feature | Free / | Microsoft 365 | Per User Plan | Per Flow Plan |
 |---|---|---|---|---|
 | Standard connectors | ✅ | ✅ | ✅ | ✅ |
 | Premium connectors | ❌ | ❌ | ✅ | ✅ |
 | Custom connectors | ❌ | ❌ | ✅ | ✅ |
 | Desktop flows | ❌ | ❌ | ✅ | ✅ |
-| AI Builder credits | ❌ | ❌ | 5K | 5K |
+| AI Builder credits | ❌ | ❌ | 5K/ | 5K/ |
 | Dataverse storage | ❌ | ❌ | 250 MB | 50 MB |
 | Child flows | ❌ | ❌ | ✅ | ✅ |
 | Business process flows | ❌ | ❌ | ✅ | ✅ |
 | Solution management | ❌ | ❌ | ✅ | ✅ |
 
-> ⚠️ Microsoft employees typically have E5 + Power Automate Per User license with premium connectors,
-> but actual capabilities depend on IT admin configuration and DLP policies.
+> ⚠️ Actual capabilities depend on your organization's license tier, IT admin configuration, and DLP policies.
+> Check with your admin for available connectors and features.
 
 > 💡 **Standard vs Premium**: SharePoint, Outlook, Teams = Standard;
 > Dataverse, SQL Server, HTTP with Microsoft Entra ID, Adobe Sign = Premium.
+
+---
 
 ## Debugging Tips
 
@@ -534,36 +551,36 @@ Scope_Rollback ( BorrowActions ):
 | Method | Description |
 |---|---|
 | **Compose** | Use Compose to output variable values |
-| **Run history** | Expand each step to see I/O JSON |
-| **Trigger output** | Click trigger to see full triggerBody |
-| **Manual test** | Use **Test** → **Manually** to run in real-time |
+| | Outputs JSON / Expand each step to see I/O JSON |
+| | Click trigger to see full triggerBody |
+| | Use **Test** → **Manually** to run in real-time |
 | **Peek code** | View underlying JSON definition |
 
 ### Condition Debugging Tips
 
-When conditions behave unexpectedly:
+ / When conditions behave unexpectedly:
 
 ```
 # Output actual value with Compose
-Compose: triggerBody()?['Status']?['Value']
+Compose: triggerBody?['Status']?['Value']
 
 # Compare expected value
-Compose: equals(triggerBody()?['Status']?['Value'], 'Available')
+Compose: equals(triggerBody?['Status']?['Value'], 'Available')
 
-# Check type - 
+# Check type -
 # Numbers and strings won't auto-convert
-Compose: equals(string(triggerBody()?['AssetId']), '42')
+Compose: equals(string(triggerBody?['AssetId']), '42')
 ```
 
 ### Trigger Debugging
 
-If Flow is not triggering:
+ Flow / If Flow is not triggering:
 
 1. Remove all trigger conditions temporarily
-2. Verify SharePoint connection is valid
+2. SharePoint Verify SP connection is valid
 3. Verify list read permissions
-4. **Value casing**: Try uppercase `Value` before lowercase `value`
-5. Use "Test → Manually" to isolate trigger issues
+4. ** Value **: `Value` `value` / Try uppercase `Value` first
+5. "Test → Manually" / Use manual test to isolate trigger issues
 
 ### Performance Debugging
 
@@ -573,6 +590,8 @@ If Flow is not triggering:
 | Slow Apply to each | Enable concurrency or pre-filter |
 | Slow SharePoint | Reduce fields, index columns |
 | Throttled (429) | Check API quotas, add delays |
+
+---
 
 ## Best Practices
 
@@ -598,7 +617,7 @@ Send_RejectionEmail
 
 ### Architecture Design
 
-1. Flow Single responsibility per Flow
+1. Single responsibility per Flow
  - ✅ Flow
  - ❌ Flow
 
@@ -611,7 +630,7 @@ Send_RejectionEmail
 ### Security & Compliance
 
  Flow connections run with the creator's permissions
-- **DLP **: DLP
+- **DLP **:
  Ensure all connectors are in the same DLP group
  Use "Secure Inputs/Outputs" to hide sensitive data in steps
  Use environment variables for URLs, emails, and other config
@@ -619,9 +638,11 @@ Send_RejectionEmail
 ### Maintenance Tips
 
 - Regularly check run history for failure rates
-- Set up failure notifications for critical Flows
-- Export Flow definitions as backups
-- Document business logic and dependencies
+- Flow / Set up failure notifications for critical Flows
+- Flow / Export Flow definitions as backups
+- Flow / Document business logic and dependencies
+
+---
 
 ## Expert-Level Development
 
@@ -643,11 +664,11 @@ Send_RejectionEmail
 #### Creating a Child Flow
 
 ```
- / Child Flow Requirements:
-1. Must be created inside a Solution
-2. : "" (Manually trigger a flow) 
-3. : " Power App  Flow" (Respond to a PowerApp or flow)
-4. Parent & child must be in the same environment
+ Child Flow Requirements:
+1. Solution: Must be created inside a Solution
+2. : "" (Manually trigger a flow)
+3. : " Power App Flow" (Respond to a PowerApp or flow)
+4. / Parent & child must be in the same environment
 ```
 
 **Defining Input Parameters:**
@@ -655,14 +676,14 @@ Send_RejectionEmail
 ```json
 // Trigger → Add an input
 {
-  "type": "object",
-  "properties": {
-  "AssetId":  { "type": "integer", "description": " ID" },
-  "AssetName":  { "type": "string",  "description": "" },
-  "RequesterEmail": { "type": "string", "description": "" },
- "Action":      { "type": "string",  "description": ": Borrow |Return|Reject" }
-  },
-  "required": ["AssetId", "Action"]
+ "type": "object",
+ "properties": {
+ "AssetId": { "type": "integer", "description": " ID" },
+ "AssetName": { "type": "string", "description": "" },
+ "RequesterEmail": { "type": "string", "description": "" },
+ "Action": { "type": "string", "description": ": Borrow |Return|Reject" }
+ },
+ "required": ["AssetId", "Action"]
 }
 ```
 
@@ -671,25 +692,25 @@ Send_RejectionEmail
 ```json
 // Define in Respond action
 {
-  "Status":  "Success",  //  "Failed"
-  "Message": "",
-  "RequestId": 42
+ "Status": "Success", // "Failed"
+ "Message": "",
+ "RequestId": 42
 }
 ```
 
 #### Parent Calling Child Flow
 
 ```
- / Parent Flow:
-  ├──  ()
-  ├── 
-  ├──  (Run a Child Flow)
-  │  : AssetId=123, Action="Borrow", RequesterEmail="user@microsoft.com"
-  │  ← : Status, Message, RequestId
-  ├── :  Status == "Success"?
-  │  ├── : 
-  │  └── : 
-  └── 
+ Parent Flow:
+ ├──
+ ├──
+ ├── (Run a Child Flow)
+ │ : AssetId=123, Action="Borrow", RequesterEmail="user@contoso.com"
+ │ ← : Status, Message, RequestId
+ ├── : Status == "Success"?
+ │ ├── :
+ │ └── :
+ └──
 ```
 
 > Child flows run in the caller's connection context, sharing the parent's permissions.
@@ -697,16 +718,16 @@ Send_RejectionEmail
 #### Modular Refactoring Example
 
 ```
- () Current (Monolithic):
-  Flow 1: CreateRequest ( Flow )
+ Current (Monolithic):
+ Flow 1: CreateRequest ( Flow )
 
- () Refactored (Modular):
-  Flow_Main:  CreateRequest_Orchestrator ()
-  ├──  → ChildFlow_ValidateTool  ()
-  ├──  → ChildFlow_LockTool  ()
-  ├──  → ChildFlow_CreateRecord  ()
-  └──  → ChildFlow_SendNotification  ()
-  ↑  Flow 2A, 2B 
+ Refactored (Modular):
+ Flow_Main: CreateRequest_Orchestrator
+ ├── → ChildFlow_ValidateTool
+ ├── → ChildFlow_LockTool
+ ├── → ChildFlow_CreateRecord
+ └── → ChildFlow_SendNotification
+ ↑ Flow 2A, 2B
 ```
 
 ### Solution Lifecycle Management
@@ -717,21 +738,21 @@ Solution Power Platform Flow Solution
 Solutions are the **packaging & deployment unit** for Power Platform; all enterprise Flows should be created inside Solutions.
 
 ```
-Solution Structure:
-  MySolution/
-  ├── Cloud flows/
-  │   ├── AssetMgmt_CreateRequest
-  │   ├── AssetMgmt_RejectedRollback
-  │   ├── AssetMgmt_ReturnedRollback
-  │   └── AssetMgmt_Approval
-  ├── Connection references/
-  │   ├── SharePoint_Connection
-  │   └── Outlook_Connection
-  ├── Environment variables/
-  │   ├── SiteUrl (ContosoTeam URL)
-  │   ├── AdminEmail (admin@contoso.com)
-  │   └── ListName_Inventory ("Asset Inventory")
-  └── Tables (if using Dataverse)/
+Solution: Solution Structure:
+ MySolution/
+ ├── Cloud flows/
+ │ ├── AssetMgmt_CreateRequest
+ │ ├── AssetMgmt_RejectedRollback
+ │ ├── AssetMgmt_ReturnedRollback
+ │ └── AssetMgmt_Approval
+ ├── Connection references/
+ │ ├── SharePoint_Connection
+ │ └── Outlook_Connection
+ ├── Environment variables/
+ │ ├── SiteUrl (ContosoTeam URL)
+ │ ├── AdminEmail (admin@contoso.com)
+ │ └── ListName_Inventory ("Asset Inventory")
+ └── Tables (if using Dataverse)/
 ```
 
 #### Environment Variables
@@ -741,19 +762,19 @@ Replace hardcoded values with environment variables for cross-environment deploy
 ```
 # Definition ( Solution ):
 : SiteUrl
-:  (Text)
-: https://microsoft.sharepoint.com/teams/ContosoTeam
-: (different per environment)
+: (Text)
+: https://contoso.sharepoint.com/teams/ContosoTeam
+: different per environment)
 
 # Reference in Flow:
 @{parameters('SiteUrl')}
 
 # Good candidates for env vars:
-- Site URLs
-- List names
-- Admin emails
-- Approval timeouts
-- Feature flags
+- URL / Site URLs
+- / List names
+- / Admin emails
+- / Approval timeouts
+- / Feature flags
 ```
 
 #### Connection References
@@ -776,9 +797,9 @@ Update connection reference to point to new SharePoint connection
 | **Unmanaged** | Dev/test environments | Editable, for continued development |
 
 ```
- / Recommended Workflow:
-  Dev  () →  →  Test  →  →  Prod 
-  Dev (unmanaged) → export managed → import Test → verify → import Prod
+ Recommended Workflow:
+ Dev → → Test → → Prod
+ Dev (unmanaged) → export managed → import Test → verify → import Prod
 ```
 
 ### Advanced JSON Manipulation
@@ -786,25 +807,25 @@ Update connection reference to point to new SharePoint connection
 #### Parse JSON Schema Generation
 
 ```
- / Method:
-1. Flow Run Flow once, get actual JSON output
-2.  Parse JSON  "" (Generate from sample)
-3.  JSON →  Schema
+ Method:
+1. Flow JSON / Run Flow once, get actual JSON output
+2. Parse JSON "" (Generate from sample)
+3. JSON → Schema
 
- Manual Schema Tuning:
+ Schema: Manual Schema Tuning:
 {
-  "type": "object",
-  "properties": {
-    "AssetId": { "type": "integer" },
-    "Status": {
-      "type": "object",
-      "properties": {
-        "Value": { "type": "string" }
-      }
-    },
-  "Title": { "type": ["string", "null"] }  // Allow null
-  },
-  "required": ["AssetId"]  // Only mark truly required fields
+ "type": "object",
+ "properties": {
+ "AssetId": { "type": "integer" },
+ "Status": {
+ "type": "object",
+ "properties": {
+ "Value": { "type": "string" }
+ }
+ },
+ "Title": { "type": ["string", "null"] } // null / Allow null
+ },
+ "required": ["AssetId"] // / Only mark truly required fields
 }
 ```
 
@@ -817,23 +838,23 @@ Update connection reference to point to new SharePoint connection
 # Method 1: Compose + expressions
 Compose :
 {
-  "request": {
-    "toolId": @{triggerBody()?['ID']},
-    "toolName": "@{body('Get_item')?['Title']}",
-    "requester": "@{triggerBody()?['headers']?['x-ms-user-email']}",
-    "timestamp": "@{utcNow()}",
-    "metadata": {
-      "flowRunId": "@{workflow()?['run']?['name']}",
-      "environment": "@{parameters('EnvironmentName')}"
-    }
-  }
+ "request": {
+ "toolId": @{triggerBody?['ID']},
+ "toolName": "@{body('Get_item')?['Title']}",
+ "requester": "@{triggerBody?['headers']?['x-ms-user-email']}",
+ "timestamp": "@{utcNow}",
+ "metadata": {
+ "flowRunId": "@{workflow?['run']?['name']}",
+ "environment": "@{parameters('EnvironmentName')}"
+ }
+ }
 }
 
-# Method 2: json() from string
+# Method 2: json from string
 json(concat(
-  '{"toolId":', string(triggerBody()?['ID']),
-  ',"status":"', body('Get_item')?['Status']?['Value'],
-  '","timestamp":"', utcNow(), '"}'
+ '{"toolId":', string(triggerBody?['ID']),
+ ',"status":"', body('Get_item')?['Status']?['Value'],
+ '","timestamp":"', utcNow, '"}'
 ))
 ```
 
@@ -841,7 +862,7 @@ json(concat(
 
 ```
 # When processing XML data:
-xpath(xml(body('HTTP_Response')), '//tool[@status="available"]/name/text()')
+xpath(xml(body('HTTP_Response')), '//tool[@status="available"]/name/text')
 
 # XML to JSON:
 json(xml(body('HTTP_Response')))
@@ -850,33 +871,33 @@ json(xml(body('HTTP_Response')))
 #### Advanced Array Operations
 
 ```
-# Map/project array
+# project array
 Select:
-  From: body('Get_items')?['value']
-  Map:  { "id": @{item()?['ID']}, "name": @{item()?['Title']} }
-  → : [{"id":1,"name":"Drill"}, {"id":2,"name":"Saw"}]
+ From: body('Get_items')?['value']
+ Map: { "id": @{item?['ID']}, "name": @{item?['Title']} }
+ → : [{"id":1,"name":"Drill"}, {"id":2,"name":"Saw"}]
 
 # Complex filtering
 Filter array:
-  From: body('Get_items')?['value']
-  Where: @and(
-    equals(item()?['Status']?['Value'], 'Available'),
-    greater(item()?['Quantity'], 0),
-    not(contains(item()?['Title'], 'RESERVED'))
-  )
+ From: body('Get_items')?['value']
+ Where: @and(
+ equals(item?['Status']?['Value'], 'Available'),
+ greater(item?['Quantity'], 0),
+ not(contains(item?['Title'], 'RESERVED'))
+ )
 
 # Deduplicate
 union(variables('myArray'), variables('myArray'))
 
-# 4.  —  Select + sortBy (Office Script  Compose )
-# Power Automate  sort:
-#  a)  Office Script 
-#  b)  SharePoint Get items  OData orderby
-#  c)  Select +  + sort 
+# 4. — Select + sortBy (Office Script Compose )
+# Power Automate sort:
+# a) Office Script
+# b) SharePoint Get items OData orderby
+# c) Select + + sort
 
 # Array aggregation — sum
 # Use Apply to each + increment variable
-length(body('Filter_array'))  // Count
+length(body('Filter_array')) // / Count
 ```
 
 ### Advanced Expression Patterns
@@ -886,17 +907,17 @@ length(body('Filter_array'))  // Count
 ```
 # Multi-level if (switch-like)
 if(
-  equals(triggerBody()?['Status']?['Value'], 'Available'),
-  'green',
-  if(
-    equals(triggerBody()?['Status']?['Value'], 'In use'),
-    'red',
-    if(
-      equals(triggerBody()?['Status']?['Value'], 'Maintenance'),
-      'yellow',
-      'gray'
-    )
-  )
+ equals(triggerBody?['Status']?['Value'], 'Available'),
+ 'green',
+ if(
+ equals(triggerBody?['Status']?['Value'], 'In use'),
+ 'red',
+ if(
+ equals(triggerBody?['Status']?['Value'], 'Maintenance'),
+ 'yellow',
+ 'gray'
+ )
+ )
 )
 ```
 
@@ -904,21 +925,21 @@ if(
 
 ```
 # Deep nested safe access
-#  ?[]  null 
-triggerBody()?['d']?['results']?[0]?['Status']?['Value']
+# ?[] null
+triggerBody?['d']?['results']?[0]?['Status']?['Value']
 
 # Safe access with default
 coalesce(
-  triggerBody()?['OptionalField']?['Value'],
-  'DefaultValue'
+ triggerBody?['OptionalField']?['Value'],
+ 'DefaultValue'
 )
 
 # Multi-level fallback
 coalesce(
-  body('Get_item')?['PreferredEmail'],
-  body('Get_item')?['Email'],
-  body('Get_item')?['Created By']?['Email'],
-  'unknown@microsoft.com'
+ body('Get_item')?['PreferredEmail'],
+ body('Get_item')?['Email'],
+ body('Get_item')?['Created By']?['Email'],
+ 'unknown@contoso.com'
 )
 ```
 
@@ -929,23 +950,23 @@ PA expressions don't support regex directly, but you can combine functions:
 ```
 # Check email format (simplified)
 and(
-  contains(variables('email'), '@'),
-  contains(variables('email'), '.'),
-  greater(indexOf(variables('email'), '@'), 0)
+ contains(variables('email'), '@'),
+ contains(variables('email'), '.'),
+ greater(indexOf(variables('email'), '@'), 0)
 )
 
 # Extract domain
-# user@microsoft.com → microsoft.com
+# user@contoso.com → microsoft.com
 substring(
-  variables('email'),
-  add(indexOf(variables('email'), '@'), 1),
-  sub(
-    length(variables('email')),
-    add(indexOf(variables('email'), '@'), 1)
-  )
+ variables('email'),
+ add(indexOf(variables('email'), '@'), 1),
+ sub(
+ length(variables('email')),
+ add(indexOf(variables('email'), '@'), 1)
+ )
 )
 
-#  Office Script  Azure Function
+# Office Script Azure Function
 # For complex regex needs, use Office Script or Azure Function
 ```
 
@@ -953,40 +974,40 @@ substring(
 
 ```
 # When property name is in a variable
-#  body('step')?[variables('fieldName')]
+# body('step')?[variables('fieldName')]
 # PA doesn't support variable as property index
 
 # Serialize → string extraction
 Compose_JSON: string(body('Get_item'))
-Compose_Value: 
-  substring(
-    outputs('Compose_JSON'),
-    add(indexOf(outputs('Compose_JSON'), concat('"', variables('fieldName'), '":"')), 
-        add(length(variables('fieldName')), 4)),
-    indexOf(
-      substring(outputs('Compose_JSON'), 
-        add(indexOf(outputs('Compose_JSON'), concat('"', variables('fieldName'), '":"')),
-            add(length(variables('fieldName')), 4))),
-      '"')
-  )
+Compose_Value:
+ substring(
+ outputs('Compose_JSON'),
+ add(indexOf(outputs('Compose_JSON'), concat('"', variables('fieldName'), '":"')),
+ add(length(variables('fieldName')), 4)),
+ indexOf(
+ substring(outputs('Compose_JSON'),
+ add(indexOf(outputs('Compose_JSON'), concat('"', variables('fieldName'), '":"')),
+ add(length(variables('fieldName')), 4))),
+ '"')
+ )
 
 # Use Select + predefined mapping
 # Pre-build mapping object
 Compose_FieldMap:
 {
-  "Status":   "@{body('Get_item')?['Status']?['Value']}",
-  "Category": "@{body('Get_item')?['Category']?['Value']}",
-  "Priority": "@{body('Get_item')?['Priority']?['Value']}"
+ "Status": "@{body('Get_item')?['Status']?['Value']}",
+ "Category": "@{body('Get_item')?['Category']?['Value']}",
+ "Priority": "@{body('Get_item')?['Priority']?['Value']}"
 }
-#  json() 
-# Then parse with json() and access by variable
+# json
+# Then parse with json and access by variable
 json(outputs('Compose_FieldMap'))?[variables('fieldName')]
 
 # xpath extraction (most universal)
-#  JSON  XML  xpath 
+# JSON XML xpath
 xpath(
-  xml(json(concat('{"root":', string(body('Get_item')), '}'))),
-  concat('//root/', variables('fieldName'), '/text()')
+ xml(json(concat('{"root":', string(body('Get_item')), '}'))),
+ concat('//root/', variables('fieldName'), '/text')
 )
 ```
 
@@ -995,27 +1016,27 @@ xpath(
 #### Global Try-Catch-Finally Pattern
 
 ```
-Flow structure:
-  │
-  ├── Initialize: var_FlowStatus = "Running"
-  ├── Initialize: var_ErrorMessage = ""
-  │
-  ├── Scope_TRY:
- │ All business logic
-  │     └── Set var_FlowStatus = "Succeeded"
-  │
-  ├── Scope_CATCH (Run after: failed):
-  │     ├── Set var_FlowStatus = "Failed"
-  │     ├── Set var_ErrorMessage = 
-  │     │     string(result('Scope_TRY'))
- │ Log error
- │ Send alert
-  │
-  └── Scope_FINALLY (Run after: succeeded, failed, skipped):
- Cleanup temp data
- Write audit log
-  └── : var_FlowStatus == "Failed"?
-  └── : Terminate (Failed)
+Flow: Flow structure:
+ │
+ ├── Initialize: var_FlowStatus = "Running"
+ ├── Initialize: var_ErrorMessage = ""
+ │
+ ├── Scope_TRY:
+ │ ├── All business logic
+ │ └── Set var_FlowStatus = "Succeeded"
+ │
+ ├── Scope_CATCH (Run after: failed):
+ │ ├── Set var_FlowStatus = "Failed"
+ │ ├── Set var_ErrorMessage =
+ │ │ string(result('Scope_TRY'))
+ │ ├── Log error
+ │ └── Send alert
+ │
+ └── Scope_FINALLY (Run after: succeeded, failed, skipped):
+ ├── Cleanup temp data
+ ├── Write audit log
+ └── : var_FlowStatus == "Failed"?
+ └── : Terminate (Failed)
 ```
 
 #### Retry Wrapper Pattern
@@ -1026,44 +1047,44 @@ Initialize: maxRetries = 3
 Initialize: operationSuccess = false
 
 Do until: or(variables('operationSuccess'), greaterOrEquals(variables('retryCount'), variables('maxRetries')))
-  │
-  ├── Scope_Attempt:
- │ Execute operation
-  │     └── Set operationSuccess = true
-  │
-  ├── Scope_RetryHandler (Run after: Scope_Attempt failed):
-  │     ├── Increment retryCount
-  │  ├── Delay: mul(variables('retryCount'), 30)  // Incremental delay
-  │  └── Log: concat(' #', string(variables('retryCount')))
-  │
-  └── (Loop continues)
+ │
+ ├── Scope_Attempt:
+ │ ├── Execute operation
+ │ └── Set operationSuccess = true
+ │
+ ├── Scope_RetryHandler (Run after: Scope_Attempt failed):
+ │ ├── Increment retryCount
+ │ ├── Delay: mul(variables('retryCount'), 30) // / Incremental delay
+ │ └── Log: concat(' #', string(variables('retryCount')))
+ │
+ └── ( / Loop continues)
 
 Condition: operationSuccess == false
-  └── : Terminate (Failed, " 3 ")
+ └── : Terminate (Failed, " 3 ")
 ```
 
 #### Error Classification & Tiered Response
 
 ```
 Scope_CATCH:
-  │
-  ├── Compose: result('Scope_TRY')  /
-  │
-  ├── Filter_FailedActions:
-  │     From: outputs('Compose')
-  │     Where: equals(item()?['status'], 'Failed')
-  │
-  ├── Apply to each: body('Filter_FailedActions')
-  │     │
-  │     └── Switch: items('Apply_to_each')?['code']
-  │  ├── "429" (Throttled):
- │ │ → Delay and retry
-  │  ├── "404" (Not found):
- │ │ → Log and skip
-  │  ├── "401/403" (Permission):
- │ │ → Alert admin immediately
-  │           └── Default:
- │ → Generic error handling
+ │
+ ├── Compose: result('Scope_TRY') /
+ │
+ ├── Filter_FailedActions:
+ │ From: outputs('Compose')
+ │ Where: equals(item?['status'], 'Failed')
+ │
+ ├── Apply to each: body('Filter_FailedActions')
+ │ │
+ │ └── Switch: items('Apply_to_each')?['code']
+ │ ├── "429" ( / Throttled):
+ │ │ → / Delay and retry
+ │ ├── "404" ( / Not found):
+ │ │ → / Log and skip
+ │ ├── "401/403" ( / Permission):
+ │ │ → / Alert admin immediately
+ │ └── Default:
+ │ → / Generic error handling
 ```
 
 ### Advanced Trigger Patterns
@@ -1071,74 +1092,74 @@ Scope_CATCH:
 #### Polling Optimization — Incremental Query
 
 ```
-# SharePoint "" +  
+# SharePoint "" +
 # "Get items" + status flag to avoid reprocessing
 
- ( 5 ) Scheduled trigger (every 5 min):
-  │
-  ├── Get items:
-  │     Filter: ProcessingStatus eq 'Pending'
-  │     Order: Created asc
-  │     Top: 50
-  │
-  ├── Apply to each:
- │ ├── Processing () Mark as Processing immediately
- │ Execute business logic
- │ └── Mark as Completed
-  │
-  └── Condition:  50 ?
-  └── :  HTTP  ()
- / Trigger self again to process remaining
+ Scheduled trigger (every 5 min):
+ │
+ ├── Get items:
+ │ Filter: ProcessingStatus eq 'Pending'
+ │ Order: Created asc
+ │ Top: 50
+ │
+ ├── Apply to each:
+ │ ├── Processing Mark as Processing immediately
+ │ ├── Execute business logic
+ │ └── Completed / Mark as Completed
+ │
+ └── Condition: 50 ?
+ └── : HTTP
+ Trigger self again to process remaining
 ```
 
 #### Queue-Based Processing Pattern
 
 ```
-#  SharePoint 
+# SharePoint
 # Use SharePoint list as a message queue
 
-Queue list design:
-  - Title: 
-  - Payload: JSON  ()
-  - Status: Queued → Processing → Completed → Failed
-  - LockedBy: Flow Run ID ()
-  - LockedAt:  ()
-  - RetryCount: 
-  - MaxRetries: 
-  - ErrorMessage: 
+Queue: Queue list design:
+ - Title:
+ - Payload: JSON
+ - Status: Queued → Processing → Completed → Failed
+ - LockedBy: Flow Run ID
+ - LockedAt:
+ - RetryCount:
+ - MaxRetries:
+ - ErrorMessage:
 
- / Processing flow:
-  ├──  Status=Queued  (LockedBy  LockedAt  30 ) 
-  ├── :  LockedBy = workflow()?['run']?['name'], Status = Processing
-  ├── Parse JSON: Payload 
-  ├── : Status = Completed
-  └── : RetryCount++, 
-  if RetryCount < MaxRetries → Status = Queued ()
-            else → Status = Failed
+ Processing flow:
+ ├── Status=Queued (LockedBy LockedAt 30 )
+ ├── : LockedBy = workflow?['run']?['name'], Status = Processing
+ ├── Parse JSON: Payload
+ ├── : Status = Completed
+ └── : RetryCount++,
+ if RetryCount < MaxRetries → Status = Queued
+ else → Status = Failed
 ```
 
 #### Event-Driven Orchestration
 
 ```
-#  Flow  SharePoint 
+# Flow SharePoint
 # Multiple Flows orchestrated via status field changes (loosely coupled)
 
-                        SharePoint List
-                       (State Machine)
-                    ┌────────────────────┐
-  │  Status  │
-  ┌──────────────┤  Flow  ├──────────────┐
-     │              └────────┬───────────┘              │
-     │                       │                          │
-     ▼                       ▼                          ▼
-  Flow A                  Flow B                     Flow C
-  :  :  :
-  Status=                 Status=                    Status=
-  "Step1_Done"            "Step2_Done"               "Step3_Done"
-     │                       │                          │
-  └→  └→  └→ 
-       Status=                Status=
-       "Step2_Done"           "Step3_Done"
+ SharePoint List
+ (State Machine)
+ ┌────────────────────┐
+ │ Status │
+ ┌──────────────┤ Flow ├──────────────┐
+ │ └────────┬───────────┘ │
+ │ │ │
+ ▼ ▼ ▼
+ Flow A Flow B Flow C
+ : : :
+ Status= Status= Status=
+ "Step1_Done" "Step2_Done" "Step3_Done"
+ │ │ │
+ └→ └→ └→
+ Status= Status=
+ "Step2_Done" "Step3_Done"
 ```
 
 ### Advanced Performance Optimization
@@ -1148,13 +1169,13 @@ Queue list design:
 ```
 # Apply to each concurrency
 
- 1: →  = 20-50
-  Scenario 1: Independent operations (e.g., notifications) → Parallelism 20-50
+ 1: → = 20-50
+ Scenario 1: Independent operations (e.g., notifications) → Parallelism 20-50
 
-  Scenario 2: Shared resources (e.g., updating same list) → Parallelism 1
+ Scenario 2: Shared resources (e.g., updating same list) → Parallelism 1
 
- 3:  API→  = 5-10
-  Scenario 3: External API with throttling → Parallelism 5-10, add delay
+ 3: API→ = 5-10
+ Scenario 3: External API with throttling → Parallelism 5-10, add delay
 ```
 
 #### Batch Operations Instead of Loops
@@ -1162,17 +1183,17 @@ Queue list design:
 ```
 # Inefficient: Create one-by-one in loop
 Apply to each (100 items):
-  └── Create item (SharePoint)  ← 100 API calls
+ └── Create item (SharePoint) ← 100 API calls
 
 # Efficient: Use SP batch API
 SharePoint " HTTP ":
-  Method: POST
-  URI: _api/$batch
-  Headers: { "Content-Type": "multipart/mixed; boundary=batch_xxx" }
-  Body: (Batch request body)
-  ← 1 API call for 100 items
+ Method: POST
+ URI: _api/$batch
+ Headers: { "Content-Type": "multipart/mixed; boundary=batch_xxx" }
+ Body: ( / Batch request body)
+ ← 1 API call for 100 items
 
-# ✅ :  Compose + Select 
+# ✅ : Compose + Select
 # Alternative: Preprocess with Compose + Select, minimize in-loop actions
 ```
 
@@ -1183,19 +1204,19 @@ SharePoint " HTTP ":
 
 # Return only needed columns
 SharePoint " HTTP ":
-  GET _api/web/lists/getbytitle('Asset Inventory')/items?$select=ID,Title,Status&$top=100
+ GET _api/web/lists/getbytitle('Asset Inventory')/items?$select=ID,Title,Status&$top=100
 
 # Reduce extra requests with $expand
-  GET ...?$select=ID,Title,Requester/EMail&$expand=Requester
+ GET ...?$select=ID,Title,Requester/EMail&$expand=Requester
 
 # Indexed columns + filter
 # Ensure filtered columns are indexed (List settings → Indexed columns)
 
 # Paginate large lists
 Do until: empty(body('Get_items')?['value'])
-  ├── Get items (Top: 5000, Skip Token: variables('skipToken'))
- Process current batch
-  └── Set skipToken = body('Get_items')?['odata.nextLink']
+ ├── Get items (Top: 5000, Skip Token: variables('skipToken'))
+ ├── Process current batch
+ └── Set skipToken = body('Get_items')?['odata.nextLink']
 ```
 
 #### Caching Strategy
@@ -1204,14 +1225,14 @@ Do until: empty(body('Get_items')?['value'])
 # Cache repeatedly used values with Compose
 
 # Recalculated each time
- 1: ... formatDateTime(utcNow(), 'yyyy-MM-dd') ...
- 2: ... formatDateTime(utcNow(), 'yyyy-MM-dd') ...  ← 
- 3: ... formatDateTime(utcNow(), 'yyyy-MM-dd') ...
+ 1: ... formatDateTime(utcNow, 'yyyy-MM-dd') ...
+ 2: ... formatDateTime(utcNow, 'yyyy-MM-dd') ... ←
+ 3: ... formatDateTime(utcNow, 'yyyy-MM-dd') ...
 
 # Compute once, reference many times
-Compose_TodayDate: formatDateTime(utcNow(), 'yyyy-MM-dd')
+Compose_TodayDate: formatDateTime(utcNow, 'yyyy-MM-dd')
  1: ... outputs('Compose_TodayDate') ...
- 2: ... outputs('Compose_TodayDate') ...  ← 
+ 2: ... outputs('Compose_TodayDate') ... ←
  3: ... outputs('Compose_TodayDate') ...
 ```
 
@@ -1222,75 +1243,75 @@ Compose_TodayDate: formatDateTime(utcNow(), 'yyyy-MM-dd')
  Flow JSON
 Every Flow is a JSON definition file underneath. Understanding it enables:
 
-- Batch-modify Flow configurations
-- Copy/templatize Flows
-- (Git) Version control (Git)
+- Flow / Batch-modify Flow configurations
+- / Flow / Copy/templatize Flows
+- (Git) / Version control (Git)
 - Automated deployment
 
 ```json
 // Flow JSON structure overview
 {
-  "definition": {
-    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-    "triggers": {
-      "When_an_item_is_created": {
-        "type": "ApiConnection",
-        "inputs": {
-          "host": { "connection": { "name": "@parameters('$connections')['shared_sharepointonline']['connectionId']" }},
-          "method": "get",
-          "path": "/datasets/@{encodeURIComponent('https://microsoft.sharepoint.com/teams/ContosoTeam')}/tables/@{encodeURIComponent('Service Requests')}/onnewitems"
-        },
-        "recurrence": { "frequency": "Minute", "interval": 1 }
-      }
-    },
-    "actions": {
-      "Get_item": {
-        "type": "ApiConnection",
-        "inputs": { ... },
-        "runAfter": {}
-      },
-      "Condition": {
-        "type": "If",
-        "expression": { "@equals": ["@body('Get_item')?['Status']?['Value']", "Available"] },
-        "actions": { ... },
-        "else": { "actions": { ... } },
-        "runAfter": { "Get_item": ["Succeeded"] }
-      }
-    }
-  },
-  "parameters": {
-    "$connections": { ... }
-  }
+ "definition": {
+ "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+ "triggers": {
+ "When_an_item_is_created": {
+ "type": "ApiConnection",
+ "inputs": {
+ "host": { "connection": { "name": "@parameters('$connections')['shared_sharepointonline']['connectionId']" }},
+ "method": "get",
+ "path": "/datasets/@{encodeURIComponent('https://contoso.sharepoint.com/teams/ContosoTeam')}/tables/@{encodeURIComponent('Service Requests')}/onnewitems"
+ },
+ "recurrence": { "frequency": "Minute", "interval": 1 }
+ }
+ },
+ "actions": {
+ "Get_item": {
+ "type": "ApiConnection",
+ "inputs": { ... },
+ "runAfter": {}
+ },
+ "Condition": {
+ "type": "If",
+ "expression": { "@equals": ["@body('Get_item')?['Status']?['Value']", "Available"] },
+ "actions": { ... },
+ "else": { "actions": { ... } },
+ "runAfter": { "Get_item": ["Succeeded"] }
+ }
+ }
+ },
+ "parameters": {
+ "$connections": { ... }
+ }
 }
 ```
 
 #### Peek Code & Debugging
 
 ```
- / How to use:
-1.  Flow  "..."
-2.  "Peek code" ()
+ How to use:
+1. Flow "..."
+2. "Peek code"
 
- / Common uses:
--  ( Status  Status/Value)
+ Common uses:
+- ( Status Status/Value)
 ```
 
-### 11.9 CI/CD ALM CI/CD & Application Lifecycle Management
+### 11.9 CI/CD ALM / CI/CD & Application Lifecycle Management
 
 #### Deployment Pipeline
 
 ```
-┌─────────────┐    ┌──────────────┐    ┌──────────────┐
-│  Dev  │───→│  Test  │───→│  Prod  │
-│  ()  │  │  ()  │  │  ()  │
-│             │    │              │    │              │
-│  &  │  │ UAT  │  │  │
-│ │  │  │  │  │
-└──────┬──────┘    └──────┬───────┘    └──────────────┘
-       │                  │
-       ▼                  ▼
-  Export unmanaged  
-                       Export managed
+┌─────────────┐ ┌──────────────┐ ┌──────────────┐
+│ Dev │───→│ Test │───→│ Prod │
+│ │ │ │ │ │
+│ │ │ │ │ │
+│ & │ │ UAT │ │ │
+│ │ │ │ │ │
+└──────┬──────┘ └──────┬───────┘ └──────────────┘
+ │ │
+ ▼ ▼
+ Export unmanaged
+ Export managed
 ```
 
 #### Using Power Platform CLI
@@ -1315,56 +1336,56 @@ pac solution pack --folder ./src/AssetMgmtSolution --zipfile ./builds/AssetMgmt_
 pac solution import --path ./builds/AssetMgmt_managed.zip --activate-plugins
 ```
 
-#### Azure DevOps GitHub Actions Pipeline Integration
+#### Azure DevOps / GitHub Actions / Pipeline Integration
 
 ```yaml
 # Azure DevOps Pipeline example
 trigger:
-  branches: [main]
-  paths:
-    include: ['src/AssetMgmtSolution/**']
+ branches: [main]
+ paths:
+ include: ['src/AssetMgmtSolution/**']
 
 stages:
-  - stage: Build
-    jobs:
-      - job: PackSolution
-        steps:
-          - task: PowerPlatformToolInstaller@2
-          - task: PowerPlatformPackSolution@2
-            inputs:
-              SolutionSourceFolder: src/AssetMgmtSolution
-              SolutionOutputFile: $(Build.ArtifactStagingDirectory)/AssetMgmt_managed.zip
-              SolutionType: Managed
+ - stage: Build
+ jobs:
+ - job: PackSolution
+ steps:
+ - task: PowerPlatformToolInstaller@2
+ - task: PowerPlatformPackSolution@2
+ inputs:
+ SolutionSourceFolder: src/AssetMgmtSolution
+ SolutionOutputFile: $(Build.ArtifactStagingDirectory)/AssetMgmt_managed.zip
+ SolutionType: Managed
 
-  - stage: DeployTest
-    dependsOn: Build
-    jobs:
-      - deployment: DeployToTest
-        environment: PowerPlatform-Test
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - task: PowerPlatformImportSolution@2
-                  inputs:
-                    Environment: $(TestEnvironmentUrl)
-                    SolutionInputFile: $(Pipeline.Workspace)/AssetMgmt_managed.zip
-                    ActivatePlugins: true
+ - stage: DeployTest
+ dependsOn: Build
+ jobs:
+ - deployment: DeployToTest
+ environment: PowerPlatform-Test
+ strategy:
+ runOnce:
+ deploy:
+ steps:
+ - task: PowerPlatformImportSolution@2
+ inputs:
+ Environment: $(TestEnvironmentUrl)
+ SolutionInputFile: $(Pipeline.Workspace)/AssetMgmt_managed.zip
+ ActivatePlugins: true
 
-  - stage: DeployProd
-    dependsOn: DeployTest
-    condition: succeeded()
-    jobs:
-      - deployment: DeployToProd
-        environment: PowerPlatform-Prod
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - task: PowerPlatformImportSolution@2
-                  inputs:
-                    Environment: $(ProdEnvironmentUrl)
-                    SolutionInputFile: $(Pipeline.Workspace)/AssetMgmt_managed.zip
+ - stage: DeployProd
+ dependsOn: DeployTest
+ condition: succeeded
+ jobs:
+ - deployment: DeployToProd
+ environment: PowerPlatform-Prod
+ strategy:
+ runOnce:
+ deploy:
+ steps:
+ - task: PowerPlatformImportSolution@2
+ inputs:
+ Environment: $(ProdEnvironmentUrl)
+ SolutionInputFile: $(Pipeline.Workspace)/AssetMgmt_managed.zip
 ```
 
 ### Monitoring & Observability
@@ -1372,58 +1393,58 @@ stages:
 #### Run Status Dashboard
 
 ```
-#  SharePoint  Flow 
+# SharePoint Flow
 # Use SharePoint list to log Flow run history
 
-FlowRunLog list design:
-  - FlowName:  Text  (Flow )
-  - RunId:        Text          (workflow()?['run']?['name'])
-  - Status:       Choice        (Succeeded / Failed)
-  - StartTime:    DateTime      (utcNow() at start)
-  - EndTime:      DateTime      (utcNow() at end)
-  - Duration:  Number  (dateDifference )
-  - ErrorMessage: Multiple lines ()
-  - InputSummary: Multiple lines ()
+FlowRunLog: FlowRunLog list design:
+ - FlowName: Text (Flow )
+ - RunId: Text (workflow?['run']?['name'])
+ - Status: Choice (Started / Succeeded / Failed)
+ - StartTime: DateTime (utcNow at start)
+ - EndTime: DateTime (utcNow at end)
+ - Duration: Number (dateDifference )
+ - ErrorMessage: Multiple lines
+ - InputSummary: Multiple lines
 
 # Add logging steps at the start and end of every Flow
 
-#  Power BI 
+# Power BI
 # Then connect Power BI to this list for dashboards
 ```
 
 #### Alerting Strategy
 
 ```
- / Alert Levels:
+ Alert Levels:
 
-🔴 P0 - Critical:
-  -  Flow (CreateRequest)  3 
- → Teams + Immediate Teams + Email
+🔴 P0 - / Critical:
+ - Flow (CreateRequest) 3
+ → Teams + / Immediate Teams + Email
 
-🟡 P1 - Warning:
-  -  Flow 
- → Email admin
+🟡 P1 - / Warning:
+ - Flow
+ → / Email admin
 
-🟢 P2 - Info:
- → Daily summary email
+🟢 P2 - / Info:
+ → / Daily summary email
 ```
 
-#### Flow Analytics API Flow API
+#### Flow Analytics API / Flow API
 
 ```
-#  Power Automate Management Connector 
+# Power Automate Management Connector
 # Get run analytics via PA Management Connector
 
-#  Power Platform Admin Center:
-#  →  → Power Automate
+# Power Platform Admin Center:
+# → → Power Automate
 # Admin → Analytics → Power Automate
 
- / Key Metrics:
-  - // Daily/weekly/monthly run count
- - Success rate
- - Average run duration
- - Most frequently failing steps
- - API call consumption
+ Key Metrics:
+ - // / Daily/weekly/monthly run count
+ - / Success rate
+ - / Average run duration
+ - / Most frequently failing steps
+ - API / API call consumption
 ```
 
 ### Security Hardening
@@ -1433,17 +1454,17 @@ FlowRunLog list design:
 ```
 # Connection account permissions
 
-   Using admin account for Flow connections
+ Using admin account for Flow connections
 
-   Create dedicated service account with minimal permissions
+ Create dedicated service account with minimal permissions
 
- / Permission Matrix:
+ Permission Matrix:
 ┌────────────────────────┬──────────────────┬──────────────────┐
 │ / List │ Flow │ │
 ├────────────────────────┼──────────────────┼──────────────────┤
-│ Asset Inventory  │  +  │  │
-│ Service Requests  │  +  +  │  ()  │
-│ FlowRunLog ()  │  │  │
+│ Asset Inventory │ + │ │
+│ Service Requests │ + + │ │
+│ FlowRunLog │ │ │
 └────────────────────────┴──────────────────┴──────────────────┘
 ```
 
@@ -1451,30 +1472,30 @@ FlowRunLog list design:
 
 ```
 # Enable in action settings:
- → ... →  →  (Security)
-  ☑  (Secure Inputs)  — 
-  ☑  (Secure Outputs)  — 
+ → ... → → (Security)
+ ☑ (Secure Inputs) —
+ ☑ (Secure Outputs) —
 
- / Use cases:
-  - /Token 
-  -  (PII) 
+ Use cases:
+ - /Token
+ - (PII)
 ```
 
 #### Injection Prevention
 
 ```
-# SharePoint 
+# SharePoint
 # Input validation in SharePoint filter queries
 
 # Directly concatenating user input
-Filter: Title eq '@{triggerBody()?['UserInput']}'
-  → : ' or 1 eq 1 or Title eq '  ← OData !
+Filter: Title eq '@{triggerBody?['UserInput']}'
+ → : ' or 1 eq 1 or Title eq ' ← OData !
 
-# ✅  encodeURIComponent 
+# ✅ encodeURIComponent
 # Use encodeURIComponent or validate input
-Filter: Title eq '@{replace(triggerBody()?['UserInput'], '''', '''''')}'
+Filter: Title eq '@{replace(triggerBody?['UserInput'], '''', '''''')}'
 
-# ✅  Get item by ID ()
+# ✅ Get item by ID
 # Or use Get item by ID (no query concatenation)
 ```
 
@@ -1494,45 +1515,47 @@ Filter: Title eq '@{replace(triggerBody()?['UserInput'], '''', '''''')}'
 #### Saga Pattern Full Example
 
 ```
-#  Saga 
+# Saga
 # Asset management Saga pattern (with compensation)
 
-Saga Steps:
-  ┌─────────────────┬─────────────────────────────┐
-  │  │  ()  │
-  ├─────────────────┼─────────────────────────────┤
-  │ ①  │ ←  (Status=Available) │
-  │    Status=In use │                             │
-  ├─────────────────┼─────────────────────────────┤
-  │ ②  │ ←  │
-  │    Service Requests │                             │
-  ├─────────────────┼─────────────────────────────┤
-  │ ③  │ ←  │
-  │                 │                             │
-  ├─────────────────┼─────────────────────────────┤
-  │ ④  │ ← ()  │
-  └─────────────────┴─────────────────────────────┘
+Saga: Saga Steps:
+ ┌─────────────────┬─────────────────────────────┐
+ │ │ │
+ ├─────────────────┼─────────────────────────────┤
+ │ ① │ ← (Status=Available) │
+ │ Status=In use │ │
+ ├─────────────────┼─────────────────────────────┤
+ │ ② │ ← │
+ │ Service Requests │ │
+ ├─────────────────┼─────────────────────────────┤
+ │ ③ │ ← │
+ │ │ │
+ ├─────────────────┼─────────────────────────────┤
+ │ ④ │ ← │
+ └─────────────────┴─────────────────────────────┘
 
-  ③  →  ②  ①  ()
-  If step ② fails → compensate step ①
-  If step ③ fails → compensate steps ② and ① (reverse order)
+ ③ → ② ①
+ If step ② fails → compensate step ①
+ If step ③ fails → compensate steps ② and ① (reverse order)
 ```
+
+---
 
 ## DLP Policies & Compliance Boundaries
 
-> ⚠️ ** Power Platform DLP **
+> ⚠️ **Power Platform DLP**
 >
-> ⚠️ **Microsoft internal Power Platform environments are governed by enterprise DLP policies.**
+> ⚠️ **Enterprise Power Platform environments are typically governed by DLP policies.**
 > Before creating or modifying Flows, you must understand the DLP policy boundaries for your environment, or your Flow may be blocked.
 
 ### DLP Core Concepts
 
-**DLP (Data Loss Prevention )**
+**DLP (Data Loss Prevention)**
 
 | Concept | Description |
 |---|---|
 | **Data Policy** | Policy created in Admin Center defining connector classification rules |
-| **Connector Group** | Non-Business Blocked Connectors classified into 3 groups |
+| **Connector Group** | Connectors classified into 3 groups: Business, Non-Business, Blocked |
 | **Policy Scope** | Policy applies to entire tenant or specific environments |
 | **Policy Stacking** | When multiple policies apply, the **most restrictive** intersection wins |
 
@@ -1540,32 +1563,32 @@ Saga Steps:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ DLP Policy │
-│                                                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐   │
-│  │   Business   │  │ Non-Business │  │     Blocked      │   │
-│  │  ()  │  │ ()  │  │  ()  │  │
-│  │              │  │              │  │                  │   │
-│  │ ✅  │  │ ✅  │  │ ❌  │  │
-│  │  │  │  │  │  │  │
-│  │  │  │  │  │  Flow  │  │
-│  │ ❌  │  │ ❌  │  │  │  │
-│  │   Non-Biz    │  │   Business   │  │                  │   │
-│  │  │  │  │  │  │  │
-│  └──────────────┘  └──────────────┘  └──────────────────┘   │
-│                                                              │
+│ DLP: DLP Policy │
+│ │
+│ ┌──────────────┐ ┌──────────────┐ ┌──────────────────┐ │
+│ │ Business │ │ Non-Business │ │ Blocked │ │
+│                │ │               │ │                  │ │ │
+│                │ │               │ │                  │ │ │
+│ │ ✅ Same group OK │ │ ✅ Same group OK │ │ ❌ Cannot use   │ │
+│                │ │               │ │                  │ │ │
+│ │                │ │               │ │  in any Flow     │ │
+│ │ ❌ Cannot mix  │ │ ❌ Cannot mix │ │                  │ │
+│ │ Non-Biz │ │ Business │ │ │ │
+│                │ │               │ │                  │ │ │
+│ └──────────────┘ └──────────────┘ └──────────────────┘ │
+│ │
 │ / Core Rule: │
-│  Flow Business  │
-│  Non-Business Flow  │
-│  All connectors in a Flow must belong to the SAME group,     │
-│  or the Flow is blocked.                                     │
+│ Flow Business │
+│ Non-Business Flow │
+│ All connectors in a Flow must belong to the SAME group, │
+│ or the Flow is blocked. │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Typical DLP Classification in Microsoft Internal Environments
+### Typical DLP Classification in Enterprise Environments
 
 > Power Platform Admin Center
-> Below is typical classification in Microsoft tenants; actual classification may vary.
+> Below is a typical enterprise classification; actual policies vary by organization.
 
 #### Business Group
 
@@ -1584,8 +1607,7 @@ Saga Steps:
 | **Azure AD** | Identity management |
 | **Excel Online (Business)** | Business spreadsheet |
 
-> 💡 **Microsoft 365 Blocked Business Non-Business **
-> Microsoft 365 core connectors cannot be blocked, only moved between Business and Non-Business.
+> 💡 Microsoft 365 core connectors cannot be blocked, only moved between Business and Non-Business.
 
 #### Non-Business Group (Default)
 
@@ -1596,12 +1618,12 @@ Saga Steps:
 | **Notifications** | Push notifications |
 | Most 3rd-party connectors | Default group for new connectors |
 
-> ⚠️ ** Non-Business ** Flow Business SharePoint Non-Business
+> ⚠️ **New connectors default to Non-Business.**
 > Newly added connectors default to Non-Business. If your Flow uses Business connectors (e.g., SharePoint), you cannot mix in Non-Business connectors.
 
 #### Blocked Group
 
- Commonly blocked in Microsoft internal environments:
+Commonly blocked in enterprise environments:
 
 | Connector | Reason |
 |---|---|
@@ -1613,13 +1635,7 @@ Saga Steps:
 | **FTP** | File transfer risk |
 | **Azure Blob Storage** | Unmanaged storage in some environments |
 
-> 🔴 HTTP
-> - ❌ HTTP API
-> - ❌ "When an HTTP request is received" webhook
-> - ❌ HTTP Webhook
-> - ✅ SharePoint " HTTP " SharePoint HTTP
->
-> 🔴 **Key limitation**: HTTP connector is **blocked** in most Microsoft internal environments:
+> 🔴 **Key limitation**: HTTP connector is **blocked** in most enterprise environments:
 > - ❌ Cannot use HTTP action to call external APIs
 > - ❌ Cannot use "When an HTTP request is received" trigger for custom webhooks
 > - ❌ Cannot use HTTP Webhook actions
@@ -1631,35 +1647,32 @@ Saga Steps:
 
 ```
 ┌─────────────────────────────────────────────┐
-│ / Tenant-Level Policy │
-│  (IT )  │
+│            Tenant-Level Policy              │
 │   (Covers all environments, IT admin managed) │
 │                                               │
 │  ┌─────────────────────────────────────────┐  │
-│ │ Environment-Level │ │
-│  │  ()  │  │
+│  │       Environment-Level Policy          │  │
 │  │  (Additional restrictions per env)       │  │
 │  │                                         │  │
-│ │ Example: │ │
-│  │  • Default :  │  │
-│  │  • Dev :  │  │
-│  │  • Production :  │  │
+│  │  Example:                               │  │
+│  │  • Default: standard restrictions       │  │
+│  │  • Dev: relaxed for testing             │  │
+│  │  • Production: strictest policies       │  │
 │  └─────────────────────────────────────────┘  │
 └─────────────────────────────────────────────┘
 ```
 
 #### Multi-Policy Stacking Effect
 
- When multiple policies apply to the same environment:
+When multiple policies apply to the same environment:
 
 | Scenario | Policy A | Policy B | Final Effect |
 |---|---|---|---|
-| BusinessBlocked | Business | Blocked | **Blocked** ❌ |
-| | Business | Non-Business | Cannot mix with either group |
-| Business | Business | Business | **Business** ✅ |
+| Business + Blocked | Business | Blocked | **Blocked** ❌ |
+| Business + Non-Business | Business | Non-Business | Cannot mix with either group |
+| Business + Business | Business | Business | **Business** ✅ |
 
-> ⚠️ **Most Restrictive Wins** Blocked
-> The most restrictive classification always wins. Blocked in ANY policy = Blocked.
+> ⚠️ **Most Restrictive Wins**: The most restrictive classification always wins. Blocked in ANY policy = Blocked.
 
 ### Connector Action-Level Control
 
@@ -1670,20 +1683,20 @@ Saga Steps:
 | Connector | Allowed Actions | Blocked Actions |
 |---|---|---|
 | SQL Server | Select | Delete, Drop Table |
-| SharePoint | Get items, Get item | (Delete item) |
+| SharePoint | Get items, Get item | Delete item |
 | SMTP | — | Send email |
 | Office 365 Outlook | Send email (V2) | Forward email |
 
 #### Endpoint Filtering (Preview)
 
-URL// Admins can restrict connectors to specific endpoints:
+Admins can restrict connectors to specific endpoints:
 
 ```
-# Example: Only allow corporate internal API
+# Example: Only allow organization API
 HTTP Connector endpoint rules:
-  ✅ Allow: https://*.microsoft.com/*
+  ✅ Allow: https://*.contoso.com/*
   ✅ Allow: https://*.sharepoint.com/*
-  ❌ Deny:  *  (all others)
+  ❌ Deny: * (all others)
 
 # Note:
 # Endpoint filtering only applies to statically configured URLs at design time
@@ -1694,13 +1707,13 @@ HTTP Connector endpoint rules:
 
 #### View DLP Policies for Current Environment
 
-** 1: Power Platform Admin Center/ Method 1: Admin Center (Recommended)**
+**Method 1: Admin Center (Recommended)**
 
 1. https://admin.powerplatform.microsoft.com
 2. → **Policies** → **Data policies**
 3. Click policy name to see connector classification
 
-** 2: PowerShell**
+**Method 2: PowerShell**
 
 ```powershell
 # Install admin module
@@ -1724,97 +1737,83 @@ Error when saving or running Flow:
         │
         ▼
 ┌───────────────────────────────────────┐
-│ 1.  │
-│    Identify conflicting connectors     │
-│  ()  │
+│ 1. Identify conflicting connectors    │
+│    (Check which connectors conflict)  │
 └───────────┬───────────────────────────┘
             │
             ▼
 ┌───────────────────────────────────────┐
-│ 2.  DLP  │
-│    Check connector DLP classification  │
-│    (Admin Center → Data policies)      │
+│ 2. Check connector DLP classification │
+│    (Admin Center → Data policies)     │
 └───────────┬───────────────────────────┘
             │
             ▼
 ┌───────────────────────────────────────┐
-│ 3.  │
-│    Choose a solution:                  │
+│ 3. Choose a solution:                 │
 │                                       │
-│  a)  │
-│       Replace with same-group connector│
-│  ( Outlook  SMTP)  │
+│  a) Replace with same-group connector │
+│     (e.g., Outlook instead of SMTP)   │
 │                                       │
-│  b)  Flow  │
-│       Split into multiple Flows        │
-│  ( Flow )  │
+│  b) Split into multiple Flows         │
+│     (one Flow per connector group)    │
 │                                       │
-│  c)  IT  DLP  │
-│       Contact IT admin to adjust DLP   │
-│  ()  │
+│  c) Contact IT admin to adjust DLP    │
+│     (request policy exception)        │
 │                                       │
-│  d)  │
-│       Request a dedicated environment  │
-│  (DLP )  │
+│  d) Request a dedicated environment   │
+│     (with custom DLP policies)        │
 └───────────────────────────────────────┘
 ```
 
 ### DLP Best Practices
 
-1. **Check before build**: Flow DLP
- Verify connector DLP groups before building a Flow
+1. **Check before build**: Verify connector DLP groups before building a Flow
 
-2. ** Business Prefer Business group connectors**: SharePoint + Outlook + Teams + Approvals
- SharePoint + Outlook + Teams + Approvals covers most scenarios
+2. **Prefer Business group connectors**: SharePoint + Outlook + Teams + Approvals covers most scenarios
 
-3. ** HTTP Avoid HTTP connector**: SharePoint REST API
- Almost certainly blocked in Microsoft environments; use SharePoint REST API or native connectors instead
+3. **Avoid HTTP connector**: Commonly blocked in enterprise environments; use SharePoint REST API or native connectors instead
 
-4. **SharePoint " HTTP " SP "Send HTTP request" is a safe alternative**: SharePoint Business SharePoint REST API HTTP
- This action is part of the SharePoint connector (Business group), can call SP REST API, unaffected by HTTP block
+4. **SP "Send HTTP request" is a safe alternative**: This action is part of the SharePoint connector (Business group), can call SP REST API, unaffected by HTTP block
 
-5. **Review new connectors**: DLP Non-Business
- Check DLP group for every new connector; default Non-Business may cause conflicts
+5. **Review new connectors**: Check DLP group for every new connector; default Non-Business may cause conflicts
 
-6. **Environment isolation**: DLP
- Request separate environments with dedicated DLP policies for projects needing special connectors
+6. **Environment isolation**: Request separate environments with dedicated DLP policies for projects needing special connectors
 
-7. **Document connector usage**: Flow DLP
- Record all connectors and their DLP groups in Flow design docs
+7. **Document connector usage**: Record all connectors and their DLP groups in Flow design docs
 
-8. **Monitor policy changes**: DLP IT Flow
- DLP policies may be updated by IT admin at any time; existing Flows may break due to policy changes
+8. **Monitor policy changes**: DLP policies may be updated by IT admin at any time; existing Flows may break due to policy changes
 
-### 2025+
+### Advanced Connector Policies (2025+)
 
-> **Advanced Connector Policies** DLP
+> **Advanced Connector Policies**
 
 | Change | Description |
 |---|---|
-| **Non-Business ** | Simplified to Allow and Block |
-| | New connectors blocked by default until admin review |
-| | Action Granular per-trigger/action control |
-| | Advanced policies coexist with standard DLP |
+| **Simplified Groups** | Simplified to Allow and Block |
+| **Default Block** | New connectors blocked by default until admin review |
+| **Action Granular** | Per-trigger/action control |
+| **Policy Coexistence** | Advanced policies coexist with standard DLP |
+
+---
 
 ## Troubleshooting FAQ
 
 ### People column write fails
 
-**Cause**: Claims
+**Cause**: SharePoint People columns require Claims format
 **Solution**:
 ```
 # Claims format
 concat('i:0#.f|membership|', <email>)
 
 # If new SP supports Email directly
- / Just use email address
+# Just use email address
 ```
 
 ### Value casing in trigger conditions
 
-**Symptom**:
-**Solution**: `Value` `value` Flow
-Try `Value` first, then `value`, or use in-flow conditions instead
+**Symptom**: Flow trigger condition not working
+**Solution**: Try `Value` (uppercase) first, then `value` (lowercase), or use in-flow conditions instead
 
 ### Can't access loop variable
 
@@ -1822,15 +1821,14 @@ Try `Value` first, then `value`, or use in-flow conditions instead
 
 ### Old instances still running after modification
 
-**Solution**:
-1. Flow →
+**Solution**: Go to Flow → Turn off → Cancel all running instances → Turn on again
 
 ### "Item or list not found" error
 
 **Investigation**:
 1. Check site URL spelling
-2. Check list name (use internal name)
-3. ID Verify ID value is valid
+2. Check list name (use internal column name)
+3. Verify ID value is valid
 4. Check connection account permissions
 
 ### Expression returns null
@@ -1838,200 +1836,197 @@ Try `Value` first, then `value`, or use in-flow conditions instead
 **Common causes**:
 ```
 # Wrong property path
-triggerBody()?['Status']?['Value']  # ✅  ?['Value']
-triggerBody()?['Status']  # ❌ 
+triggerBody?['Status']?['Value'] # ✅ ?['Value']
+triggerBody?['Status'] # ❌
 
 # Null-safe access
-triggerBody()?['Field']  # ✅  ?[]  null 
-triggerBody()['Field']  # ❌  Field 
+triggerBody?['Field'] # ✅ ?[] null
+triggerBody['Field'] # ❌ Field
 
 # Dynamic content vs Expression
 ```
 
 ### How to handle concurrency conflicts
 
-**Scenario**:
+**Scenario**: Multiple Flow instances updating the same item simultaneously
 **Solution**:
-1. 1 Set trigger concurrency to 1
+1. Set trigger concurrency to 1
 2. Re-read status before update (optimistic lock)
-3. SharePoint Use SP list versioning
+3. Use SP list versioning
 
 ### How to test auto-triggered Flows
 
 1. Convert to instant flow to test logic first
 2. Create dedicated test data
 3. Expand trigger in run history
-4. ** Compose**: Add debug Compose at key points
+4. **Add debug Compose**: Add Compose actions at key points to output variable values
 
 ### Flow blocked by DLP policy
 
-**Symptom**: Flow "Blocked by Data Loss Prevention policy"
-**Cause**: Flow DLP
+**Symptom**: "Blocked by Data Loss Prevention policy" error
+**Cause**: Flow uses connectors from different DLP groups
 **Solution**:
 1. Check error details for conflicting connectors
-2. Outlook SMTP/ Replace with same-group connector
-3. Flow Or split into multiple Flows per group
-4. IT (`Power Platform Admin Center → Data policies`)
+2. Replace with same-group connector (e.g., Outlook instead of SMTP)
+3. Or split into multiple Flows per group
+4. Contact IT admin (`Power Platform Admin Center → Data policies`)
 
 ### HTTP connector blocked
 
-**Symptom**: HTTP Flow
+**Symptom**: Cannot save or run Flow using HTTP connector
 **Solution**:
 ```
 # Alternative priority:
-1. SharePoint " HTTP " —  SharePoint REST API ✅
-2.  DataverseSQL Server API  ✅
-3.  DLP ⚠️ 
-4.  DLP  ⚠️ 
+1. Use SharePoint "Send an HTTP request" action — calls SP REST API ✅
+2. Use Dataverse or SQL Server native connector ✅
+3. Request DLP exception from IT admin ⚠️
+4. Request dedicated environment with custom DLP ⚠️
 ```
+
+---
 
 ## Ecosystem Integration & Frontier Capabilities
 
-> 🚀 Power Automate AI/CopilotTeams Adaptive CardsPower AppsDataverse
->
 > 🚀 This chapter covers deep integration with AI/Copilot, Teams Adaptive Cards, Power Apps,
 > Dataverse, Desktop Flows (RPA), Custom Connectors, and governance toolkits.
 
 ### AI Builder & Copilot Integration
 
-#### Copilot in Power Automate —
+#### Copilot in Power Automate
 
 ```
- / Use Cases:
-1.  Flow Copilot  Flow 
-  " SharePoint "
-  → Copilot :  +  +  + 
+Use Cases:
+1. Create Flow from natural language
+   e.g., "When a SharePoint item is created, send approval"
+   → Copilot generates: trigger + condition + approval + notification
 
-2.  Flow  Copilot
-  → Copilot  Outlook Send email 
+2. Edit existing Flow with Copilot
+   → Copilot adds Outlook Send email action
 
-3.  Copilot 
+3. Ask Copilot questions about your Flow
 
- / Entry:
-  make.powerautomate.com →  Flow →  Copilot 
+Entry:
+  make.powerautomate.com → Open Flow → Click Copilot icon
 ```
 
 #### AI Builder Models
 
 | Model | Purpose | Asset Management Scenario |
 |---|---|---|
-| **Document Processing** | PDF | Auto-import from scanned inventory forms |
-| **Text Classification** | | Auto-classify borrow request types |
-| **Sentiment Analysis** | | Analyze user feedback |
-| **Entity Extraction** | | Extract tool name + requester from email |
-| **GPT (Create text with GPT)** | | Auto-generate borrow confirmation |
-| **Object Detection** | | Photo-verify tool return condition |
+| **Document Processing** | Extract data from PDF/images | Auto-import from scanned inventory forms |
+| **Text Classification** | Categorize text | Auto-classify request types |
+| **Sentiment Analysis** | Analyze sentiment | Analyze user feedback |
+| **Entity Extraction** | Extract entities from text | Extract tool name + requester from email |
+| **GPT (Create text with GPT)** | Generate text | Auto-generate confirmation messages |
+| **Object Detection** | Detect objects in images | Photo-verify return condition |
 
 #### Using AI Builder in Flows
 
 ```
 # Example: Generate personalized notification with GPT
 
-Flow :
-  ├── : Service Requests 
- Get tool details
-  ├── AI Builder:  GPT 
-  │  : @{body('Get_item')?['Title']}
-  │  : @{triggerBody()?['Requester']?['DisplayName']}
-  │  : @{formatDateTime(utcNow(), 'yyyyMMdd')}"
-  │  ← : AI 
-  └──  (V2):  AI 
+Flow structure:
+  ├── Trigger: Service Requests (new item)
+  ├── Get item details
+  ├── AI Builder: Create text with GPT
+  │   Input: Item title, requester name, date
+  │   ← Output: AI-generated message
+  └── Send email (V2): Include AI-generated content
 ```
 
-> ⚠️ **AI Builder (Credits)**
+> ⚠️ **AI Builder Credits**
 > AI Builder requires credits — monthly quota, additional credits cost extra.
 
 ### Teams + Adaptive Cards Patterns
 
 #### Adaptive Cards Basics
 
-Adaptive Cards UI Teams
 Adaptive Cards are cross-platform UI cards enabling **rich interactions** in Teams (buttons, forms, selectors).
 
 ```json
 // Asset management approval card example
 {
-  "type": "AdaptiveCard",
-  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-  "version": "1.4",
-  "body": [
-    {
-      "type": "TextBlock",
-  "text": "🔧 ",
-      "weight": "Bolder",
-      "size": "Large"
-    },
-    {
-      "type": "FactSet",
-      "facts": [
-  { "title": "", "value": "${AssetName}" },
-  { "title": "", "value": "${RequesterName}" },
-  { "title": "", "value": "${RequestDate}" }
-      ]
-    },
-    {
-      "type": "TextBlock",
-  "text": "",
-      "wrap": true
-    }
-  ],
-  "actions": [
-    {
-      "type": "Action.Submit",
-  "title": "✅ ",
-      "style": "positive",
-      "data": { "action": "approve", "requestId": "${RequestId}" }
-    },
-    {
-      "type": "Action.Submit",
-  "title": "❌ ",
-      "style": "destructive",
-      "data": { "action": "reject", "requestId": "${RequestId}" }
-    }
-  ]
+ "type": "AdaptiveCard",
+ "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+ "version": "1.4",
+ "body": [
+ {
+ "type": "TextBlock",
+ "text": "🔧 ",
+ "weight": "Bolder",
+ "size": "Large"
+ },
+ {
+ "type": "FactSet",
+ "facts": [
+ { "title": "", "value": "${AssetName}" },
+ { "title": "", "value": "${RequesterName}" },
+ { "title": "", "value": "${RequestDate}" }
+ ]
+ },
+ {
+ "type": "TextBlock",
+ "text": "",
+ "wrap": true
+ }
+ ],
+ "actions": [
+ {
+ "type": "Action.Submit",
+ "title": "✅ ",
+ "style": "positive",
+ "data": { "action": "approve", "requestId": "${RequestId}" }
+ },
+ {
+ "type": "Action.Submit",
+ "title": "❌ ",
+ "style": "destructive",
+ "data": { "action": "reject", "requestId": "${RequestId}" }
+ }
+ ]
 }
 ```
 
 #### Sending Adaptive Cards in Flow
 
 ```
-#  1: " Adaptive Card "
+# 1: " Adaptive Card "
 # Post adaptive card and wait for a response
 
-Teams →  Adaptive Card 
-  Team: Contoso
-  Channel: 
-  Card: ( JSON)
-  : " @{body('Post_adaptive_card')?['responderDisplayName']} "
-  ← : body('Post_adaptive_card')?['data']?['action']
+Teams → Adaptive Card
+ Team: Contoso
+ Channel:
+ Card: ( JSON)
+ : " @{body('Post_adaptive_card')?['responderDisplayName']} "
+ ← : body('Post_adaptive_card')?['data']?['action']
 
-#  2: " Adaptive Card"()
+# 2: " Adaptive Card"
 # Post card without waiting
 
-#  3: "Post Adaptive Card to a Teams user and wait"
+# 3: "Post Adaptive Card to a Teams user and wait"
 # Send to specific user and wait
 ```
 
-#### Teams @Mention @
+#### Teams @Mention / @
 
 ```
 # @mention a user in Teams message
 <at></at>
 
-#  HTML :
-<at>admin</at> 
+# HTML :
+<at>admin</at>
 ```
 
 #### Teams Notification Best Practices
 
 ```
 ✅ :
-  -  Adaptive Card  ()
-  -  "Post and wait" 
+ - Adaptive Card
+ - "Post and wait"
 
 ❌ :
-  -  Flow  Teams  ()
-  -  debug 
+ - Flow Teams
+ - debug
 ```
 
 ### Power Apps ↔ Power Automate Integration
@@ -2039,35 +2034,35 @@ Teams →  Adaptive Card
 #### Triggering Flow from Power Apps
 
 ```
-# 1.  Flow "Power Apps (V2)"
-# 3.  ( "Respond to a PowerApp or flow" )
-# 4.  Power Apps :  → Power Automate →  Flow
+# 1. Flow "Power Apps (V2)"
+# 3. ( "Respond to a PowerApp or flow" )
+# 4. Power Apps : → Power Automate → Flow
 
-Power Button formula example:
-  //  Flow 
-  Set(varResult, 
-    AssetMgmt_CreateRequest.Run(
-      ThisItem.ID,           // AssetId
-      User().Email           // RequesterEmail
-    )
-  );
-  If(varResult.Status = "Success",
-  Notify("!", NotificationType.Success),
-    Notify(varResult.Message, NotificationType.Error)
-  );
+Power Apps: Button formula example:
+ // Flow
+ Set(varResult,
+ AssetMgmt_CreateRequest.Run(
+ ThisItem.ID, // AssetId
+ User.Email // RequesterEmail
+ )
+ );
+ If(varResult.Status = "Success",
+ Notify("!", NotificationType.Success),
+ Notify(varResult.Message, NotificationType.Error)
+ );
 ```
 
 #### Flow Operating Power Apps Data
 
 ```
-# Power Apps  Dataverse  SharePoint 
+# Power Apps Dataverse SharePoint
 
-: Power Apps  → SharePoint  ← Flow 
-  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐
-  │  Power Apps   │─────→│  SharePoint   │←─────│ Power Automate│
-  │  ()  │  │  ()  │  │  ()  │
-  │  │  │  Service Requests │  │  │
-  └──────────────┘      └──────────────┘      └──────────────┘
+: Power Apps → SharePoint ← Flow
+ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+ │ Power Apps │─────→│ SharePoint │←─────│ Power Automate│
+ │ │ │ │ │ │
+ │ │ │ Service Requests │ │ │
+ └──────────────┘ └──────────────┘ └──────────────┘
 ```
 
 ### Custom Connector Development
@@ -2075,53 +2070,53 @@ Power Button formula example:
 #### When to Build Custom Connectors
 
 ```
-  -  REST API
-  -  SaaS 
-  -  Flow  API 
+ - REST API
+ - SaaS
+ - Flow API
 
-  -  →  HTTP  DLP 
+ - → HTTP DLP
 ```
 
 #### Creating a Custom Connector
 
 ```
- 1:  OpenAPI/Swagger 
-  make.powerautomate.com →  →  →  OpenAPI 
-  swagger.json → 
+ 1: OpenAPI/Swagger
+ make.powerautomate.com → → → OpenAPI
+ swagger.json →
 
-  1. :  URL
-  2. : API Key / OAuth 2.0 / Basic Auth
-  3. :  API endpoint 
+ 1. : URL
+ 2. : API Key / OAuth 2.0 / Basic Auth
+ 3. : API endpoint
 
- / Authentication Types:
-  ┌─────────────────┬──────────────────────────────┐
- │ Method │ / Use Case │
-  ├─────────────────┼──────────────────────────────┤
-  │ No Auth  │  API  │
-  │ API Key  │  API  │
-  │ Basic Auth  │  │
-  │ OAuth 2.0  │ Microsoft GraphGoogle  │
-  │ Microsoft Entra │  API ()  │
-  └─────────────────┴──────────────────────────────┘
+ Authentication Types:
+ ┌─────────────────┬──────────────────────────────┐
+ │ / Method │ / Use Case │
+ ├─────────────────┼──────────────────────────────┤
+ │ No Auth │ API │
+ │ API Key │ API │
+ │ Basic Auth │ │
+ │ OAuth 2.0 │ Microsoft GraphGoogle │
+ │ Microsoft Entra │ API │
+ └─────────────────┴──────────────────────────────┘
 ```
 
-> Custom connectors may be blocked by DLP in Microsoft environments. Check policies first.
+> Custom connectors may be blocked by DLP policies. Check your environment policies first.
 
-### RPA Desktop Flows & RPA
+### RPA / Desktop Flows & RPA
 
 #### Desktop Flows Overview
 
 Desktop flows automate **local desktop application** operations — traditional RPA.
 
 ```
- / Run Modes:
-  ┌────────────────┬─────────────────────────────────┐
-  │  │  │
-  │ Attended       │ Runs while user is logged in      │
-  ├────────────────┼─────────────────────────────────┤
-  │  │  │
-  │ Unattended     │ Runs in background (dedicated VM) │
-  └────────────────┴─────────────────────────────────┘
+ Run Modes:
+ ┌────────────────┬─────────────────────────────────┐
+ │ │ │
+ │ Attended │ Runs while user is logged in │
+ ├────────────────┼─────────────────────────────────┤
+ │ │ │
+ │ Unattended │ Runs in background (dedicated VM) │
+ └────────────────┴─────────────────────────────────┘
 
   Toolchain:
   Power Automate Desktop (PAD)
@@ -2149,25 +2144,25 @@ Desktop flows automate **local desktop application** operations — traditional 
 
 | Dimension | SharePoint Lists | Dataverse |
 |---|---|---|
-| Capacity | ≤ 30M <5000 | |
-| Relational | Lookup | |
-| Transactions | | |
-| Security | + | (RLS) + |
-| Throttling | | |
-| Offline | | Power Apps |
-| License | M365 | Automate Premium |
+| Capacity | ≤ 30M items, <5000 view threshold | Unlimited rows |
+| Relational | Lookup columns only | Full relational model |
+| Transactions | No native support | Built-in transactions |
+| Security | Site + list permissions | Row-level security (RLS) |
+| Throttling | 5000 items API limit | Higher throughput |
+| Offline | No | Power Apps offline |
+| License | M365 included | Automate Premium required |
 
 #### Dataverse Triggers
 
 ```
-# "" (When a row is added, modified, or deleted)
-# —  SharePoint  webhook
+# "When a row is added, modified, or deleted" trigger
+# More reliable than SharePoint webhook triggers
 
-  : Asset Inventory
-  : Added, Modified, Deleted ()
-  : Organization / Business Unit / User
-  : Status eq 'Available'
-  : toolid, title, status  ()
+  Table: Asset Inventory
+  Change type: Added, Modified, Deleted
+  Scope: Organization / Business Unit / User
+  Filter rows: Status eq 'Available'
+  Select columns: toolid, title, status
 ```
 
 ### Governance & CoE Toolkit
@@ -2178,16 +2173,16 @@ Desktop flows automate **local desktop application** operations — traditional 
 Microsoft's official governance toolkit for Power Platform — discover, clean up, and audit.
 
 ```
-CoE Core Components:
-  ┌────────────────────────────┐
-  │ 1.  (Core)  │ →  Flow/App
-  ├────────────────────────────┤
-  │ 2.  (Governance)  │ →  Flow DLP 
-  ├────────────────────────────┤
-  │ 3.  (Nurture)  │ → Maker 
-  ├────────────────────────────┤
-  │ 4.  (Audit)  │ →  Flow 
-  └────────────────────────────┘
+CoE: Core Components:
+ ┌────────────────────────────┐
+ │ 1. (Core) │ → Flow/App
+ ├────────────────────────────┤
+ │ 2. (Governance) │ → Flow DLP
+ ├────────────────────────────┤
+ │ 3. (Nurture) │ → Maker
+ ├────────────────────────────┤
+ │ 4. (Audit) │ → Flow
+ └────────────────────────────┘
 
 : https://aka.ms/CoEStarterKit
 ```
@@ -2195,48 +2190,50 @@ CoE Core Components:
 #### Power Automate Management Connector
 
 ```
-#  Flow  Flow — 
+# Flow Flow —
 # Manage Flows with Flows — meta-programming
 
- / Available Actions:
-  -  (List My Flows)
-  -  (Get Flow)
-  -  (Get Flow Runs)
-  -  (Create Flow)
-  -  (Edit Flow)
-  - (Enable/Disable Flow)
-  -  (Delete Flow)
+ Available Actions:
+ - (List My Flows)
+ - (Get Flow)
+ - (Get Flow Runs)
+ - (Create Flow)
+ - (Edit Flow)
+ - / (Enable/Disable Flow)
+ - (Delete Flow)
 
 # Example: Daily check for failing Flows and alert
 
  ( 9:00):
-  ├──  →  Flow
-  ├── Apply to each:
-  │  ├──  (24,  Status=Failed)
-  │  └── :  > 3?
-  │  └── :  failedFlows 
-  └── : failedFlows ?
-  └── :  (Teams/Email)
+ ├── → Flow
+ ├── Apply to each:
+ │ ├── (24, Status=Failed)
+ │ └── : > 3?
+ │ └── : failedFlows
+ └── : failedFlows ?
+ └── : (Teams/Email)
 ```
 
 #### Environment Strategy
 
 ```
- / Recommended Environment Structure:
-  ┌──────────────────────────────────────────┐
-  │ Default  ( DLP)  │
-  │  →  │
-  │  →  │
-  ├──────────────────────────────────────────┤
-  │ Project-Dev  │
-  │  → Lab Manager  │
-  │  →  &  │
-  ├──────────────────────────────────────────┤
-  │ Project-Prod  │
-  │  →  │
-  │  →  │
-  └──────────────────────────────────────────┘
+ Recommended Environment Structure:
+ ┌──────────────────────────────────────────┐
+ │ Default ( DLP) │
+ │ → │
+ │ → │
+ ├──────────────────────────────────────────┤
+ │ Project-Dev │
+ │ → Lab Manager │
+ │ → & │
+ ├──────────────────────────────────────────┤
+ │ Project-Prod │
+ │ → │
+ │ → │
+ └──────────────────────────────────────────┘
 ```
+
+---
 
 ## Appendix C: Cookbook Recipes
 
@@ -2245,78 +2242,78 @@ CoE Core Components:
 **Scenario**: Approval not responded within 24h, auto-escalate to manager.
 
 ```
-: Service Requests 
-  │
-  ├──  (Create an approval) — 
-  │  : 
-  │
-  ├── Do until: or( isResponded,  escalationCount >= 2)
-  │     │
-  │  ├──  24 
-  │     │
-  │  ├──  (Wait for an approval, timeout 1)
-  │     │
-  │  └── : ?
-  │  ├── : Set isResponded = true
-  │  └── : 
-  │                 ├── escalationCount++
-  │  ├──  (O365 Users → Get manager)
-  │  ├── 
-  │  └── Teams : ""
-  │
-  └──  ApprovalStatus
+: Service Requests
+ │
+ ├── (Create an approval) —
+ │ :
+ │
+ ├── Do until: or( isResponded, escalationCount >= 2)
+ │ │
+ │ ├── 24
+ │ │
+ │ ├── (Wait for an approval, timeout 1)
+ │ │
+ │ └── : ?
+ │ ├── : Set isResponded = true
+ │ └── :
+ │ ├── escalationCount++
+ │ ├── (O365 Users → Get manager)
+ │ ├──
+ │ └── Teams : ""
+ │
+ └── ApprovalStatus
 ```
 
 ### Daily Overdue Tool Reminder
 
 ```
-:  09:00 ()
-  │
-  ├── Get items (Service Requests):
-  │     Filter: ApprovalStatus eq 'Approved'
-  │
-  ├── Filter array: 
-  │     Where: StartDate < addDays(utcNow(), -7)
-  │  ←  7 
-  │
-  ├── : ?
-  │     │
-  │  └── :
-  │  ├── Apply to each ():
-  │  │  └── :
-  │  │  " {AssetName}  7 "
-  │           │
-  │  └──  HTML  → 
-  │  " {length} ..."
-  │
-  └── (: )
+: 09:00
+ │
+ ├── Get items (Service Requests):
+ │ Filter: ApprovalStatus eq 'Approved'
+ │
+ ├── Filter array:
+ │ Where: StartDate < addDays(utcNow, -7)
+ │ ← 7
+ │
+ ├── : ?
+ │ │
+ │ └── :
+ │ ├── Apply to each :
+ │ │ └── :
+ │ │ " {AssetName} 7 "
+ │ │
+ │ └── HTML →
+ │ " {length} ..."
+ │
+ └── (: )
 ```
 
 ### Weekly Asset Management Statistics
 
 ```
-:  09:00
-  │
-  ├──  7  Service Requests
-  │     Filter: Created gt '@{addDays(utcNow(), -7)}'
-  │
- Statistics:
-  │     ├── Compose_Total: length(body('Get_items')?['value'])
-  │     ├── Filter_Approved → Compose_ApprovedCount
-  │     ├── Filter_Rejected → Compose_RejectedCount
-  │     └── Filter_Returned → Compose_ReturnedCount
-  │
-  ├── Select:  Top 5
-  │  ( AssetName )
-  │
-  ├──  HTML : 
-  │
-  └──  ():
-  : "📊  - {formatDateTime(utcNow(), 'MM/dd')}"
-  " {Total} 
- {Approved} | {Rejected} | {Returned} 
-  : {Top5Table}
-  : {DetailTable}"
+: 09:00
+ │
+ ├── 7 Service Requests
+ │ Filter: Created gt '@{addDays(utcNow, -7)}'
+ │
+ ├── Statistics:
+ │ ├── Compose_Total: length(body('Get_items')?['value'])
+ │ ├── Filter_Approved → Compose_ApprovedCount
+ │ ├── Filter_Rejected → Compose_RejectedCount
+ │ └── Filter_Returned → Compose_ReturnedCount
+ │
+ ├── Select: Top 5
+ │ ( AssetName )
+ │
+ ├── HTML :
+ │
+ └── :
+ : "📊 - {formatDateTime(utcNow, 'MM/dd')}"
+ " {Total}
+ {Approved} | {Rejected} | {Returned}
+ : {Top5Table}
+ : {DetailTable}"
 ```
 
 ### Data Consistency Auto-Fix
@@ -2324,46 +2321,48 @@ CoE Core Components:
  Asset Inventory Service Requests
 
 ```
-:  02:00 ()
-  │
-  ├── Get items: Asset Inventory (Status = 'In use')
-  │
-  ├── Apply to each (=1):
-  │     │
-  │     ├── Get items: Service Requests
-  │  │  Filter: AssetId eq {ID} 
-  │     │             and ApprovalStatus eq 'Approved'
-  │     │
-  │  └── : ?
-  │           │
-  │  └──  (!):
-  │  ├──  Asset Inventory: Status → Available
-  │  ├── : FlowRunLog ()
-  │  └── :
-  │  "⚠️ : {AssetName}  In use  Available
-  │  : "
-  │
-  └── :  {count} 
+: 02:00
+ │
+ ├── Get items: Asset Inventory (Status = 'In use')
+ │
+ ├── Apply to each (=1):
+ │ │
+ │ ├── Get items: Service Requests
+ │ │ Filter: AssetId eq {ID}
+ │ │ and ApprovalStatus eq 'Approved'
+ │ │
+ │ └── : ?
+ │ │
+ │ └── (!):
+ │ ├── Asset Inventory: Status → Available
+ │ ├── : FlowRunLog
+ │ └── :
+ │ "⚠️ : {AssetName} In use Available
+ │ : "
+ │
+ └── : {count}
 ```
 
 ### One-Click Borrow with Adaptive Card
 
 ```
 
-:  08:30
-  │
-  ├── Get items: Asset Inventory (Status = 'Available')
-  │
-  ├── Select:  Adaptive Card 
-  │     Map: { "title": item()?['Title'], "id": item()?['ID'] }
-  │
-  ├── Compose:  Adaptive Card JSON
-  │  ( +  "" )
-  │
-  └── Teams:  Adaptive Card 
-  →  data.toolId
-  →  ChildFlow_BorrowTool(toolId, responderEmail)
+: 08:30
+ │
+ ├── Get items: Asset Inventory (Status = 'Available')
+ │
+ ├── Select: Adaptive Card
+ │ Map: { "title": item?['Title'], "id": item?['ID'] }
+ │
+ ├── Compose: Adaptive Card JSON
+ │ ( + "" )
+ │
+ └── Teams: Adaptive Card
+ → data.toolId
+ → ChildFlow_BorrowTool(toolId, responderEmail)
 ```
+
+---
 
 ## Appendix B: Quick Reference Card
 
@@ -2371,31 +2370,33 @@ CoE Core Components:
 
 ```
 # Current time
-utcNow()
+utcNow
 
-# Beijing time
-convertFromUtc(utcNow(), 'China Standard Time')
+# Local time (example: Pacific Standard Time)
+convertFromUtc(utcNow(), 'Pacific Standard Time')
 
 # 7 days later
-addDays(utcNow(), 7)
+addDays(utcNow, 7)
 
 # Concat title
-concat('Borrow - ', triggerBody()?['Title'])
+concat('Borrow - ', triggerBody?['Title'])
 
 # Conditional value
 if(equals(body('Get_item')?['Status']?['Value'], 'Available'), 'Yes', 'No')
 
 # People column Claims
-concat('i:0#.f|membership|', triggerBody()?['headers']?['x-ms-user-email'])
+concat('i:0#.f|membership|', triggerBody?['headers']?['x-ms-user-email'])
 
 # Null check
-coalesce(triggerBody()?['Description'], ' / No description')
+coalesce(triggerBody?['Description'], ' / No description')
 
 # Array length
 length(body('Get_items')?['value'])
 
 # Format date
-formatDateTime(utcNow(), 'yyyy-MM-dd HH:mm:ss')
+formatDateTime(utcNow, 'yyyy-MM-dd HH:mm:ss')
 ```
+
+---
 
 > ✏️ Maintainer: kylehuang0323-ai
