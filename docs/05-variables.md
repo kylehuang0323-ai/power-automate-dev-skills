@@ -22,8 +22,7 @@
 | (Increment variable) | Add to number |
 | (Decrement variable) | Subtract from number |
 
-> ⚠️ ** Flow **//Scope
-> Initialize variable must be at top level, not inside conditions/loops/scopes
+> ⚠️ **Top-level only**: Initialize variable must be at top level, not inside conditions, loops, or scopes
 
 ### Data Operations
 
@@ -37,7 +36,6 @@
 | (Select) | Map array fields |
 | (Join) | Join array to string() |
 
-> 💡 `Compose` ""
-> **Tip**: `Compose` is more flexible than variables — no top-level restriction
+> 💡 **Tip**: `Compose` is more flexible than variables — no top-level restriction, works as a lightweight temp variable
 
 ---

@@ -1,7 +1,5 @@
 ## Expert-Level Development
 
-> 🔥 JSON Solution CI/CD
->
 > 🔥 This chapter covers advanced architecture patterns, complex expression techniques, child flow orchestration, JSON manipulation, Solution management, CI/CD, and enterprise production practices.
 
 ### Child Flows & Modular Architecture
@@ -10,19 +8,19 @@
 
 | Problem | Child Flow Solution |
 |---|---|
-| Flow 500 | Split into child flows, each ≤100 actions() |
-| Flow | Extract to shared child flow, maintain once |
-| | Parent orchestrates, children execute |
-| | Different teams own their child flows |
+| Flow exceeds 500 actions | Split into child flows, each ≤100 actions |
+| Duplicate logic across Flows | Extract to shared child flow, maintain once |
+| Complex orchestration | Parent orchestrates, children execute |
+| Team collaboration | Different teams own their child flows |
 
 #### Creating a Child Flow
 
 ```
- Child Flow Requirements:
-1. Solution: Must be created inside a Solution
-2. : "" (Manually trigger a flow)
-3. : " Power App Flow" (Respond to a PowerApp or flow)
-4. / Parent & child must be in the same environment
+Child Flow Requirements:
+1. Must be created inside a Solution
+2. Trigger: "Manually trigger a flow"
+3. Response: "Respond to a PowerApp or flow"
+4. Parent & child must be in the same environment
 ```
 
 **Defining Input Parameters:**
@@ -30,14 +28,14 @@
 ```json
 // Trigger → Add an input
 {
- "type": "object",
- "properties": {
- "AssetId": { "type": "integer", "description": " ID" },
- "AssetName": { "type": "string", "description": "" },
- "RequesterEmail": { "type": "string", "description": "" },
- "Action": { "type": "string", "description": ": Borrow |Return|Reject" }
- },
- "required": ["AssetId", "Action"]
+  "type": "object",
+  "properties": {
+    "AssetId": { "type": "integer", "description": "Asset ID" },
+    "AssetName": { "type": "string", "description": "Asset name" },
+    "RequesterEmail": { "type": "string", "description": "Requester email" },
+    "Action": { "type": "string", "description": "Action type: Borrow | Return | Reject" }
+  },
+  "required": ["AssetId", "Action"]
 }
 ```
 
@@ -243,15 +241,15 @@ Filter array:
 # Deduplicate
 union(variables('myArray'), variables('myArray'))
 
-# 4. — Select + sortBy (Office Script Compose )
-# Power Automate sort:
-# a) Office Script
-# b) SharePoint Get items OData orderby
-# c) Select + + sort
+# 4. Advanced sorting — Select + sortBy (use Office Script or Compose workaround)
+# Power Automate sorting options:
+# a) Use Office Script for complex sorting
+# b) Use SharePoint Get items with OData $orderby
+# c) Use Select + Compose for simple reordering
 
 # Array aggregation — sum
 # Use Apply to each + increment variable
-length(body('Filter_array')) // / Count
+length(body('Filter_array'))  // Count of filtered items
 ```
 
 ### Advanced Expression Patterns
@@ -279,7 +277,7 @@ if(
 
 ```
 # Deep nested safe access
-# ?[] null
+# Use ?[] operator to prevent null reference errors
 triggerBody?['d']?['results']?[0]?['Status']?['Value']
 
 # Safe access with default
@@ -346,19 +344,19 @@ Compose_Value:
  )
 
 # Use Select + predefined mapping
-# Pre-build mapping object
+# Build mapping object with Compose
 Compose_FieldMap:
 {
  "Status": "@{body('Get_item')?['Status']?['Value']}",
  "Category": "@{body('Get_item')?['Category']?['Value']}",
  "Priority": "@{body('Get_item')?['Priority']?['Value']}"
 }
-# json
+# Parse and access dynamically by field name
 # Then parse with json and access by variable
 json(outputs('Compose_FieldMap'))?[variables('fieldName')]
 
-# xpath extraction (most universal)
-# JSON XML xpath
+# xpath extraction (most universal approach)
+# Convert JSON to XML, then use xpath to extract value
 xpath(
  xml(json(concat('{"root":', string(body('Get_item')), '}'))),
  concat('//root/', variables('fieldName'), '/text')

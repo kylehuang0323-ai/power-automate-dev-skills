@@ -5,124 +5,120 @@
 **Scenario**: Approval not responded within 24h, auto-escalate to manager.
 
 ```
-: Service Requests
- │
- ├── (Create an approval) —
- │ :
- │
- ├── Do until: or( isResponded, escalationCount >= 2)
- │ │
- │ ├── 24
- │ │
- │ ├── (Wait for an approval, timeout 1)
- │ │
- │ └── : ?
- │ ├── : Set isResponded = true
- │ └── :
- │ ├── escalationCount++
- │ ├── (O365 Users → Get manager)
- │ ├──
- │ └── Teams : ""
- │
- └── ApprovalStatus
+Trigger: Service Requests (new item)
+  |
+  +-- Create an approval -- get approvalId
+  |   Assigned to: item requester's manager
+  |
+  +-- Do until: or( isResponded, escalationCount >= 2)
+  |   |
+  |   +-- Delay 24 hours
+  |   |
+  |   +-- Wait for an approval (timeout 1 day)
+  |   |
+  |   +-- Condition: Responded?
+  |       +-- Yes: Set isResponded = true
+  |       +-- No:
+  |           +-- escalationCount++
+  |           +-- Get manager (O365 Users)
+  |           +-- Create new approval for manager
+  |           +-- Teams: Post escalation notice
+  |
+  +-- Process ApprovalStatus result
 ```
 
-### Daily Overdue Tool Reminder
+### Daily Overdue Reminder
 
 ```
-: 09:00
- │
- ├── Get items (Service Requests):
- │ Filter: ApprovalStatus eq 'Approved'
- │
- ├── Filter array:
- │ Where: StartDate < addDays(utcNow(), -7)
- │ ← 7
- │
- ├── : ?
- │ │
- │ └── :
- │ ├── Apply to each :
- │ │ └── :
- │ │ " {AssetName} 7 "
- │ │
- │ └── HTML →
- │ " {length} ..."
- │
- └── (: )
+Trigger: Schedule 09:00 daily
+  |
+  +-- Get items (Service Requests):
+  |   Filter: ApprovalStatus eq 'Approved'
+  |
+  +-- Filter array:
+  |   Where: StartDate < addDays(utcNow(), -7)
+  |   (Items overdue by 7+ days)
+  |
+  +-- Condition: Any overdue items?
+  |   |
+  |   +-- Yes:
+  |       +-- Apply to each overdue item:
+  |       |   +-- Send reminder email:
+  |       |       "{AssetName} has been checked out for 7+ days"
+  |       |
+  |       +-- Send summary HTML email to admin:
+  |           "{count} items overdue..."
+  |
+  +-- End (no action if none overdue)
 ```
 
 ### Weekly Asset Management Statistics
 
 ```
-: 09:00
- │
- ├── 7 Service Requests
- │ Filter: Created gt '@{addDays(utcNow(), -7)}'
- │
- ├── Statistics:
- │ ├── Compose_Total: length(body('Get_items')?['value'])
- │ ├── Filter_Approved → Compose_ApprovedCount
- │ ├── Filter_Rejected → Compose_RejectedCount
- │ └── Filter_Returned → Compose_ReturnedCount
- │
- ├── Select: Top 5
- │ ( AssetName )
- │
- ├── HTML :
- │
- └── :
- : "📊 - {formatDateTime(utcNow(), 'MM/dd')}"
- " {Total}
- {Approved} | {Rejected} | {Returned}
- : {Top5Table}
- : {DetailTable}"
+Trigger: Schedule Monday 09:00
+  |
+  +-- Get items: Service Requests (last 7 days)
+  |   Filter: Created gt '@{addDays(utcNow(), -7)}'
+  |
+  +-- Calculate Statistics:
+  |   +-- Compose_Total: length(body('Get_items')?['value'])
+  |   +-- Filter_Approved -> Compose_ApprovedCount
+  |   +-- Filter_Rejected -> Compose_RejectedCount
+  |   +-- Filter_Returned -> Compose_ReturnedCount
+  |
+  +-- Select: Top 5 most borrowed assets
+  |   (Group by AssetName, count occurrences)
+  |
+  +-- Create HTML summary table
+  |
+  +-- Send report email:
+      Subject: "Weekly Report - {formatDateTime(utcNow(), 'MM/dd')}"
+      Body: "Total: {Total}
+             Approved: {Approved} | Rejected: {Rejected} | Returned: {Returned}
+             Top assets: {Top5Table}"
 ```
 
 ### Data Consistency Auto-Fix
 
- Asset Inventory Service Requests
+Reconcile Asset Inventory status with Service Requests records.
 
 ```
-: 02:00
- │
- ├── Get items: Asset Inventory (Status = 'In use')
- │
- ├── Apply to each (=1):
- │ │
- │ ├── Get items: Service Requests
- │ │ Filter: AssetId eq {ID}
- │ │ and ApprovalStatus eq 'Approved'
- │ │
- │ └── : ?
- │ │
- │ └── (!):
- │ ├── Asset Inventory: Status → Available
- │ ├── : FlowRunLog
- │ └── :
- │ "⚠️ : {AssetName} In use Available
- │ : "
- │
- └── : {count}
+Trigger: Schedule 02:00 daily
+  |
+  +-- Get items: Asset Inventory (Status = 'In use')
+  |
+  +-- Apply to each (concurrency=1):
+  |   |
+  |   +-- Get items: Service Requests
+  |   |   Filter: AssetId eq {ID} and ApprovalStatus eq 'Approved'
+  |   |
+  |   +-- Condition: Active borrow record exists?
+  |       |
+  |       +-- No (inconsistent!):
+  |           +-- Update Asset Inventory: Status -> Available
+  |           +-- Log to FlowRunLog list
+  |           +-- Send alert:
+  |               "Auto-fix: {AssetName} changed In use -> Available"
+  |
+  +-- Send summary: {count} items fixed
 ```
 
 ### One-Click Borrow with Adaptive Card
 
 ```
-
-: 08:30
- │
- ├── Get items: Asset Inventory (Status = 'Available')
- │
- ├── Select: Adaptive Card
- │ Map: { "title": item?['Title'], "id": item?['ID'] }
- │
- ├── Compose: Adaptive Card JSON
- │ ( + "" )
- │
- └── Teams: Adaptive Card
- → data.toolId
- → ChildFlow_BorrowTool(toolId, responderEmail)
+Trigger: Schedule 08:30 daily
+  |
+  +-- Get items: Asset Inventory (Status = 'Available')
+  |
+  +-- Select: Build Adaptive Card choices
+  |   Map: { "title": item?['Title'], "id": item?['ID'] }
+  |
+  +-- Compose: Adaptive Card JSON
+  |   (Dynamic dropdown + Submit button)
+  |
+  +-- Post Adaptive Card to Teams channel
+      On submit: extract data.toolId
+      Call ChildFlow_BorrowTool(toolId, responderEmail)
 ```
 
 ---
@@ -133,7 +129,8 @@
 
 ```
 # Current time
-utcNow() 
+utcNow()
+
 # Local time (example: Pacific Standard Time)
 convertFromUtc(utcNow(), 'Pacific Standard Time')
 
@@ -149,8 +146,8 @@ if(equals(body('Get_item')?['Status']?['Value'], 'Available'), 'Yes', 'No')
 # People column Claims
 concat('i:0#.f|membership|', triggerBody?['headers']?['x-ms-user-email'])
 
-# Null check
-coalesce(triggerBody?['Description'], ' / No description')
+# Null check with default
+coalesce(triggerBody?['Description'], 'No description')
 
 # Array length
 length(body('Get_items')?['value'])
@@ -161,4 +158,4 @@ formatDateTime(utcNow(), 'yyyy-MM-dd HH:mm:ss')
 
 ---
 
-> ✏️ Maintainer: kylehuang0323-ai
+> Maintainer: kylehuang0323-ai
