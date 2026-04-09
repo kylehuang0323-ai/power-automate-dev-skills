@@ -1,0 +1,41 @@
+name: "\U0001F4A1 Feature Request — New Pattern or Connector"
+description: Suggest a new design pattern, connector reference, or content addition
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to make this skill better? We'd love to hear it!
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - "New design pattern"
+        - "New connector reference"
+        - "New expression examples"
+        - "New cookbook recipe"
+        - "CI/CD pipeline example"
+        - "Ecosystem integration (Teams, Power Apps, AI Builder, etc.)"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the feature or content you'd like to see added
+      placeholder: "I'd like to see a cookbook recipe for processing emails with attachments and saving them to SharePoint..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: How would this help Power Automate developers?
+    validations:
+      required: false

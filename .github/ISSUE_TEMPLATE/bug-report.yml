@@ -1,0 +1,52 @@
+name: "\U0001F41B Bug Report — Outdated or Incorrect Content"
+description: Report outdated information, incorrect syntax, or broken examples
+title: "[Bug]: "
+labels: ["bug", "documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve this skill! Please describe the issue below.
+
+  - type: dropdown
+    id: affected-area
+    attributes:
+      label: Affected Area
+      options:
+        - "docs/01-fundamentals.md"
+        - "docs/02-triggers.md"
+        - "docs/03-connectors.md"
+        - "docs/04-expressions.md"
+        - "docs/05-variables.md"
+        - "docs/06-flow-control.md"
+        - "docs/07-error-handling.md"
+        - "docs/08-performance.md"
+        - "docs/09-debugging.md"
+        - "docs/10-best-practices.md"
+        - "docs/11-expert-patterns.md"
+        - "docs/12-dlp-policies.md"
+        - "docs/13-troubleshooting.md"
+        - "docs/14-ecosystem.md"
+        - "docs/appendix-cookbook.md"
+        - "SKILL.md"
+        - "copilot-instructions.md"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What's wrong?
+      description: Describe the incorrect or outdated content
+      placeholder: "The expression `triggerBody()?['Status']?['Value']` in docs/04-expressions.md doesn't work because..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should it say?
+      description: If you know the correct information, please share it
+    validations:
+      required: false

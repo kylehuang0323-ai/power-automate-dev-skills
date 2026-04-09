@@ -1,9 +1,38 @@
+<div align="center">
+
 # ⚡ Power Automate Developer Skills
 
-> A standardized GitHub Copilot skill for expert-level Power Automate development — from fundamentals to enterprise architecture patterns.
+**The most comprehensive GitHub Copilot skill for Power Automate development**
+
+Give your AI assistant expert-level Power Automate knowledge —
+from trigger conditions to enterprise Saga patterns.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Skill: Power Automate](https://img.shields.io/badge/Copilot_Skill-Power_Automate-blue)](https://github.com/kylehuang0323-ai/power-automate-dev-skills)
+[![Lint](https://github.com/kylehuang0323-ai/power-automate-dev-skills/actions/workflows/lint.yml/badge.svg)](https://github.com/kylehuang0323-ai/power-automate-dev-skills/actions/workflows/lint.yml)
+[![Skill: Power Automate](https://img.shields.io/badge/Copilot_Skill-Power_Automate-0078D4)](https://github.com/kylehuang0323-ai/power-automate-dev-skills)
+[![Docs: 15 modules](https://img.shields.io/badge/Docs-15_modules-green)](#knowledge-coverage)
+[![Patterns: 8 designs](https://img.shields.io/badge/Patterns-8_designs-orange)](#knowledge-coverage)
+
+🌐 [English](README.md) | [中文](README.zh-CN.md)
+
+[Quick Start](#quick-start) · [Why This Skill?](#why-this-skill) · [Knowledge Base](#knowledge-coverage) · [Examples](#examples) · [Contributing](CONTRIBUTING.md)
+
+</div>
+
+---
+
+## Why This Skill?
+
+Building Power Automate flows with Copilot? You'll hit these walls:
+
+| Problem | Without This Skill | With This Skill |
+|---------|-------------------|-----------------|
+| Trigger syntax | ❌ Generic UI advice | ✅ Generates `@equals(triggerBody()?['Status']?['Value'],'Approved')` |
+| Infinite loops | ❌ No awareness of self-triggering | ✅ Adds guard conditions + flag columns automatically |
+| DLP compliance | ❌ Suggests blocked HTTP connectors | ✅ Uses only Business-group connectors, offers alternatives |
+| Error handling | ❌ No Scope/Try-Catch patterns | ✅ Scope_Try → Scope_Catch with Saga rollback |
+| Flow JSON | ❌ Can't generate importable definitions | ✅ Full Logic Apps JSON with connection references |
+| SharePoint | ❌ Wrong column names (display vs internal) | ✅ REST API discovery + correct `InternalName` usage |
 
 ## What is this?
 
@@ -44,6 +73,10 @@ In VS Code with GitHub Copilot, use the prompt templates:
 
 ```
 .github/
+├── workflows/
+│   └── lint.yml                         # CI: Markdown linting + link check
+├── ISSUE_TEMPLATE/                      # Bug report & feature request forms
+├── PULL_REQUEST_TEMPLATE.md             # PR checklist
 ├── copilot-instructions.md              # Core AI instructions (<4KB)
 ├── instructions/
 │   ├── expressions.instructions.md      # Expression-specific rules
@@ -57,22 +90,25 @@ In VS Code with GitHub Copilot, use the prompt templates:
     └── power-automate/
         └── SKILL.md                     # Skill definition & metadata
 
-docs/                                     # Modular knowledge base
+docs/                                     # Modular knowledge base (15 modules)
 ├── 01-fundamentals.md                   # Flow types, core concepts
 ├── 02-triggers.md                       # Trigger types & conditions
 ├── 03-connectors.md                     # Common connectors reference
-├── 04-expressions.md                    # Expression functions cheat sheet
+├── 04-expressions.md                    # 50+ expression functions cheat sheet
 ├── 05-variables.md                      # Variables & data operations
 ├── 06-flow-control.md                   # Conditions, loops, scopes
 ├── 07-error-handling.md                 # Try-Catch, retry, Saga patterns
 ├── 08-performance.md                    # Limits, quotas, optimization
 ├── 09-debugging.md                      # Debugging techniques
 ├── 10-best-practices.md                 # Naming, architecture, security
-├── 11-expert-patterns.md                # Child flows, CI/CD, JSON, monitoring
+├── 11-expert-patterns.md                # Child flows, CI/CD, 8 design patterns
 ├── 12-dlp-policies.md                   # DLP policies & compliance
 ├── 13-troubleshooting.md               # FAQ & common errors
 ├── 14-ecosystem.md                      # AI Builder, Teams, Power Apps, RPA
 └── appendix-cookbook.md                  # Ready-to-use recipes
+
+examples/                                 # Importable flow definitions (coming soon)
+└── ...
 ```
 
 ## Prompt Templates
@@ -106,9 +142,32 @@ When you add this skill to your project:
 4. **`.github/skills/power-automate/SKILL.md`** defines the skill metadata for agent-based tools
 5. **`docs/*.md`** serve as the detailed knowledge base that Copilot can reference via `@workspace`
 
+## Examples
+
+> 🚧 **Coming Soon** — Importable flow definitions in `examples/` directory.
+
+Planned examples:
+
+| Example | Description | Format |
+|---------|-------------|--------|
+| SharePoint Approval | Item selection → status lock → approval → rollback | Logic Apps JSON + Dataverse Solution |
+| Error Handling Saga | Multi-step operation with compensation rollback | Logic Apps JSON |
+| Teams Adaptive Card | Approval via Teams with rich card UI | JSON + Adaptive Card template |
+| Scheduled Sync | Recurring data sync between SharePoint lists | Logic Apps JSON |
+
+Want to contribute an example? See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+**Ways to contribute:**
+
+- 📖 Fix or improve documentation
+- ✨ Add new design patterns or cookbook recipes
+- 🔌 Add connector references
+- 📦 Submit importable flow JSON examples
+- 🌐 Help with translations
 
 ## License
 
@@ -116,4 +175,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ---
 
-> ✏️ Maintainer: [@kylehuang0323-ai](https://github.com/kylehuang0323-ai)
+<div align="center">
+
+Made with ⚡ by [@kylehuang0323-ai](https://github.com/kylehuang0323-ai)
+
+If this skill helps you, consider giving it a ⭐
+
+</div>

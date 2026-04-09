@@ -1,0 +1,22 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^https://make\\.powerautomate\\.com"
+    },
+    {
+      "pattern": "^https://make\\.powerapps\\.com"
+    },
+    {
+      "pattern": "^https://tenant\\.sharepoint\\.com"
+    },
+    {
+      "pattern": "^https://\\{site\\}"
+    }
+  ],
+  "replacementPatterns": [],
+  "httpHeaders": [],
+  "timeout": "10s",
+  "retryOn429": true,
+  "retryCount": 3,
+  "aliveStatusCodes": [200, 206, 301, 302, 307, 308]
+}
