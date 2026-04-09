@@ -107,8 +107,17 @@ docs/                                     # Modular knowledge base (15 modules)
 ├── 14-ecosystem.md                      # AI Builder, Teams, Power Apps, RPA
 └── appendix-cookbook.md                  # Ready-to-use recipes
 
-examples/                                 # Importable flow definitions (coming soon)
-└── ...
+examples/                                 # Importable flow definitions
+├── sharepoint-approval/                 # Lock → approve → rollback pattern
+│   ├── README.md
+│   └── flow-definition.json
+├── error-handling-saga/                 # Try-Catch-Finally + Saga compensation
+│   ├── README.md
+│   └── flow-definition.json
+└── teams-adaptive-card/                 # Teams card approval
+    ├── README.md
+    ├── flow-definition.json
+    └── adaptive-card-template.json
 ```
 
 ## Prompt Templates
@@ -144,16 +153,15 @@ When you add this skill to your project:
 
 ## Examples
 
-> 🚧 **Coming Soon** — Importable flow definitions in `examples/` directory.
+Importable flow definitions in the [`examples/`](examples/) directory:
 
-Planned examples:
+| Example | Patterns | Files |
+|---------|----------|-------|
+| [SharePoint Approval](examples/sharepoint-approval/) | Concurrency control, Scope error handling, Saga rollback | Flow JSON |
+| [Error Handling Saga](examples/error-handling-saga/) | Try-Catch-Finally, Saga compensation, audit logging | Flow JSON |
+| [Teams Adaptive Card](examples/teams-adaptive-card/) | Adaptive Cards, wait for response, conditional update | Flow JSON + Card template |
 
-| Example | Description | Format |
-|---------|-------------|--------|
-| SharePoint Approval | Item selection → status lock → approval → rollback | Logic Apps JSON + Dataverse Solution |
-| Error Handling Saga | Multi-step operation with compensation rollback | Logic Apps JSON |
-| Teams Adaptive Card | Approval via Teams with rich card UI | JSON + Adaptive Card template |
-| Scheduled Sync | Recurring data sync between SharePoint lists | Logic Apps JSON |
+Each example includes a `README.md` with architecture diagram, customization guide, and import instructions.
 
 Want to contribute an example? See [CONTRIBUTING.md](CONTRIBUTING.md).
 

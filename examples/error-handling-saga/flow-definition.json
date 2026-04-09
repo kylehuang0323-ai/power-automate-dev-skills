@@ -1,0 +1,190 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "$connections": {
+      "defaultValue": {},
+      "type": "Object"
+    },
+    "$authentication": {
+      "defaultValue": {},
+      "type": "SecureObject"
+    }
+  },
+  "triggers": {
+    "When_an_item_is_created": {
+      "type": "OpenApiConnectionNotification",
+      "inputs": {
+        "host": {
+          "connectionName": "shared_sharepointonline",
+          "operationId": "GetOnNewItems",
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+        },
+        "parameters": {
+          "dataset": "https://YOUR_TENANT.sharepoint.com/sites/YOUR_SITE",
+          "table": "Orders"
+        },
+        "authentication": "@parameters('$authentication')"
+      }
+    }
+  },
+  "actions": {
+    "Scope_Try": {
+      "type": "Scope",
+      "runAfter": {},
+      "actions": {
+        "Step1_Create_OrderDetail": {
+          "type": "OpenApiConnection",
+          "runAfter": {},
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "PostItem",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOUR_TENANT.sharepoint.com/sites/YOUR_SITE",
+              "table": "OrderDetails",
+              "item/Title": "@{concat('Detail-', triggerBody()?['Title'])}",
+              "item/OrderId": "@triggerBody()?['ID']",
+              "item/Status/Value": "Processing"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Step2_Update_Inventory": {
+          "type": "OpenApiConnection",
+          "runAfter": {
+            "Step1_Create_OrderDetail": ["Succeeded"]
+          },
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "PatchItem",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOUR_TENANT.sharepoint.com/sites/YOUR_SITE",
+              "table": "Inventory",
+              "id": "@triggerBody()?['ProductId']",
+              "item/StockCount": "@sub(body('Get_Inventory')?['StockCount'], triggerBody()?['Quantity'])"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Step3_Update_Order_Success": {
+          "type": "OpenApiConnection",
+          "runAfter": {
+            "Step2_Update_Inventory": ["Succeeded"]
+          },
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "PatchItem",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOUR_TENANT.sharepoint.com/sites/YOUR_SITE",
+              "table": "Orders",
+              "id": "@triggerBody()?['ID']",
+              "item/Status/Value": "Confirmed"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      }
+    },
+    "Scope_Catch": {
+      "type": "Scope",
+      "runAfter": {
+        "Scope_Try": ["Failed", "TimedOut"]
+      },
+      "actions": {
+        "Compensate_Step2_Restore_Inventory": {
+          "type": "OpenApiConnection",
+          "runAfter": {},
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "PatchItem",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOUR_TENANT.sharepoint.com/sites/YOUR_SITE",
+              "table": "Inventory",
+              "id": "@triggerBody()?['ProductId']",
+              "item/StockCount": "@add(body('Get_Inventory')?['StockCount'], triggerBody()?['Quantity'])"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Compensate_Step1_Delete_OrderDetail": {
+          "type": "OpenApiConnection",
+          "runAfter": {
+            "Compensate_Step2_Restore_Inventory": ["Succeeded", "Failed"]
+          },
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "DeleteItem",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOUR_TENANT.sharepoint.com/sites/YOUR_SITE",
+              "table": "OrderDetails",
+              "id": "@body('Step1_Create_OrderDetail')?['ID']"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Update_Order_Failed": {
+          "type": "OpenApiConnection",
+          "runAfter": {
+            "Compensate_Step1_Delete_OrderDetail": ["Succeeded", "Failed"]
+          },
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "PatchItem",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOUR_TENANT.sharepoint.com/sites/YOUR_SITE",
+              "table": "Orders",
+              "id": "@triggerBody()?['ID']",
+              "item/Status/Value": "Failed"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      }
+    },
+    "Scope_Finally": {
+      "type": "Scope",
+      "runAfter": {
+        "Scope_Catch": ["Succeeded", "Failed", "Skipped"]
+      },
+      "actions": {
+        "Log_to_AuditLog": {
+          "type": "OpenApiConnection",
+          "runAfter": {},
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "PostItem",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://YOUR_TENANT.sharepoint.com/sites/YOUR_SITE",
+              "table": "AuditLog",
+              "item/Title": "@{concat('Order-', triggerBody()?['ID'], ' | ', utcNow())}",
+              "item/FlowRunId": "@workflow()?['run']?['name']",
+              "item/Status/Value": "@if(equals(result('Scope_Try')[0]?['status'], 'Succeeded'), 'Success', 'Failed')"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      }
+    }
+  }
+}

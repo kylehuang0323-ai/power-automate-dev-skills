@@ -1,0 +1,82 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.4",
+  "body": [
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "items": [
+            {
+              "type": "Image",
+              "url": "https://adaptivecards.io/content/pending.png",
+              "size": "Small"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Approval Request",
+              "weight": "Bolder",
+              "size": "Medium",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "A new request requires your approval",
+              "spacing": "None",
+              "isSubtle": true,
+              "wrap": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "FactSet",
+      "facts": [
+        {
+          "title": "Request:",
+          "value": "${title}"
+        },
+        {
+          "title": "Requester:",
+          "value": "${requesterName}"
+        },
+        {
+          "title": "Date:",
+          "value": "${requestDate}"
+        },
+        {
+          "title": "Details:",
+          "value": "${details}"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "✅ Approve",
+      "style": "positive",
+      "data": {
+        "action": "Approve"
+      }
+    },
+    {
+      "type": "Action.Submit",
+      "title": "❌ Reject",
+      "style": "destructive",
+      "data": {
+        "action": "Reject"
+      }
+    }
+  ]
+}

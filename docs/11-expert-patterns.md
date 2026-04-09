@@ -689,6 +689,8 @@ pac solution import --path ./builds/AssetMgmt_managed.zip --activate-plugins
 
 #### Azure DevOps / GitHub Actions / Pipeline Integration
 
+**Azure DevOps Pipeline:**
+
 ```yaml
 # Azure DevOps Pipeline example
 trigger:
@@ -738,6 +740,134 @@ stages:
  Environment: $(ProdEnvironmentUrl)
  SolutionInputFile: $(Pipeline.Workspace)/AssetMgmt_managed.zip
 ```
+
+**GitHub Actions Pipeline:**
+
+```yaml
+# .github/workflows/deploy-solution.yml
+name: Deploy Power Automate Solution
+
+on:
+  push:
+    branches: [main]
+    paths: ['src/AssetMgmtSolution/**']
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: 'Target environment'
+        required: true
+        default: 'test'
+        type: choice
+        options: ['test', 'production']
+
+env:
+  SOLUTION_NAME: AssetMgmtSolution
+  SOLUTION_FOLDER: src/AssetMgmtSolution
+
+jobs:
+  build:
+    name: Pack Solution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PAC CLI
+        uses: microsoft/powerplatform-actions/install-pac@v1
+
+      - name: Pack Solution (Managed)
+        uses: microsoft/powerplatform-actions/pack-solution@v1
+        with:
+          solution-folder: ${{ env.SOLUTION_FOLDER }}
+          solution-file: ${{ runner.temp }}/${{ env.SOLUTION_NAME }}_managed.zip
+          solution-type: Managed
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: solution-package
+          path: ${{ runner.temp }}/${{ env.SOLUTION_NAME }}_managed.zip
+
+  deploy-test:
+    name: Deploy to Test
+    needs: build
+    runs-on: ubuntu-latest
+    environment: powerplatform-test
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: solution-package
+
+      - name: Install PAC CLI
+        uses: microsoft/powerplatform-actions/install-pac@v1
+
+      - name: Authenticate
+        uses: microsoft/powerplatform-actions/who-am-i@v1
+        with:
+          environment-url: ${{ secrets.TEST_ENV_URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+
+      - name: Import Solution
+        uses: microsoft/powerplatform-actions/import-solution@v1
+        with:
+          environment-url: ${{ secrets.TEST_ENV_URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-file: ${{ env.SOLUTION_NAME }}_managed.zip
+          force-overwrite: true
+          activate-plugins: true
+
+  deploy-prod:
+    name: Deploy to Production
+    needs: deploy-test
+    runs-on: ubuntu-latest
+    environment: powerplatform-prod
+    if: github.event.inputs.target_env == 'production' || github.ref == 'refs/heads/main'
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: solution-package
+
+      - name: Install PAC CLI
+        uses: microsoft/powerplatform-actions/install-pac@v1
+
+      - name: Import Solution
+        uses: microsoft/powerplatform-actions/import-solution@v1
+        with:
+          environment-url: ${{ secrets.PROD_ENV_URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-file: ${{ env.SOLUTION_NAME }}_managed.zip
+          force-overwrite: true
+          activate-plugins: true
+```
+
+**Required GitHub Secrets:**
+
+| Secret | Description |
+|--------|-------------|
+| `CLIENT_ID` | Azure AD App Registration Client ID |
+| `CLIENT_SECRET` | Azure AD App Registration Secret |
+| `TENANT_ID` | Azure AD Tenant ID |
+| `TEST_ENV_URL` | Test environment URL (e.g., `https://org-test.crm.dynamics.com`) |
+| `PROD_ENV_URL` | Production environment URL |
+
+**GitHub Actions — Key Actions from `microsoft/powerplatform-actions`:**
+
+| Action | Purpose |
+|--------|---------|
+| `install-pac` | Install Power Platform CLI |
+| `who-am-i` | Authenticate + verify connection |
+| `pack-solution` | Pack solution folder to .zip |
+| `import-solution` | Import solution to environment |
+| `export-solution` | Export solution from environment |
+| `check-solution` | Run Solution Checker (lint) |
+| `deploy-package` | Deploy Package Deployer package |
 
 ### Monitoring & Observability
 

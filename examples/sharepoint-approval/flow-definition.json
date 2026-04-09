@@ -1,0 +1,164 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "$connections": {
+      "defaultValue": {},
+      "type": "Object"
+    },
+    "$authentication": {
+      "defaultValue": {},
+      "type": "SecureObject"
+    }
+  },
+  "triggers": {
+    "For_a_selected_item": {
+      "type": "Request",
+      "kind": "ApiConnection",
+      "inputs": {
+        "schema": {
+          "type": "object",
+          "properties": {}
+        },
+        "host": {
+          "connectionName": "shared_sharepointonline",
+          "operationId": "GetSelectedItem",
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+        },
+        "parameters": {
+          "dataset": "https://YOUR_TENANT.sharepoint.com/sites/YOUR_SITE",
+          "table": "YOUR_INVENTORY_LIST"
+        },
+        "authentication": "@parameters('$authentication')"
+      },
+      "runtimeConfiguration": {
+        "concurrency": {
+          "runs": 1
+        }
+      }
+    }
+  },
+  "actions": {
+    "Get_item": {
+      "type": "OpenApiConnection",
+      "runAfter": {},
+      "inputs": {
+        "host": {
+          "connectionName": "shared_sharepointonline",
+          "operationId": "GetItem",
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+        },
+        "parameters": {
+          "dataset": "https://YOUR_TENANT.sharepoint.com/sites/YOUR_SITE",
+          "table": "YOUR_INVENTORY_LIST",
+          "id": "@triggerBody()?['entity']?['ID']"
+        },
+        "authentication": "@parameters('$authentication')"
+      }
+    },
+    "Condition_-_Check_Available": {
+      "type": "If",
+      "expression": {
+        "and": [
+          {
+            "equals": [
+              "@body('Get_item')?['Status']?['Value']",
+              "Available"
+            ]
+          }
+        ]
+      },
+      "actions": {
+        "Scope_Try": {
+          "type": "Scope",
+          "runAfter": {},
+          "actions": {
+            "Update_item_-_Lock": {
+              "type": "OpenApiConnection",
+              "runAfter": {},
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "PatchItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOUR_TENANT.sharepoint.com/sites/YOUR_SITE",
+                  "table": "YOUR_INVENTORY_LIST",
+                  "id": "@triggerBody()?['entity']?['ID']",
+                  "item/Status/Value": "In use"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Create_item_-_Request": {
+              "type": "OpenApiConnection",
+              "runAfter": {
+                "Update_item_-_Lock": ["Succeeded"]
+              },
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "PostItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOUR_TENANT.sharepoint.com/sites/YOUR_SITE",
+                  "table": "YOUR_REQUESTS_LIST",
+                  "item/Title": "@{concat('Request - ', body('Get_item')?['Title'])}",
+                  "item/Status/Value": "Pending",
+                  "item/StartDate": "@utcNow()"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          }
+        },
+        "Scope_Rollback": {
+          "type": "Scope",
+          "runAfter": {
+            "Scope_Try": ["Failed", "TimedOut"]
+          },
+          "actions": {
+            "Update_item_-_Rollback": {
+              "type": "OpenApiConnection",
+              "runAfter": {},
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "PatchItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "https://YOUR_TENANT.sharepoint.com/sites/YOUR_SITE",
+                  "table": "YOUR_INVENTORY_LIST",
+                  "id": "@triggerBody()?['entity']?['ID']",
+                  "item/Status/Value": "Available"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "actions": {
+          "Terminate_-_Not_Available": {
+            "type": "Terminate",
+            "runAfter": {},
+            "inputs": {
+              "runStatus": "Cancelled",
+              "runError": {
+                "code": "ItemNotAvailable",
+                "message": "This item is not available for borrowing."
+              }
+            }
+          }
+        }
+      },
+      "runAfter": {
+        "Get_item": ["Succeeded"]
+      }
+    }
+  }
+}
