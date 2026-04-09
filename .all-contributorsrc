@@ -1,0 +1,29 @@
+{
+  "commitType": "docs",
+  "contributors": [
+    {
+      "contributions": [
+        "code",
+        "doc",
+        "ideas",
+        "maintenance"
+      ],
+      "name": "Kyle Huang",
+      "avatar_url": "https://github.com/kylehuang0323-ai.png",
+      "login": "kylehuang0323-ai",
+      "profile": "https://github.com/kylehuang0323-ai"
+    }
+  ],
+  "commit": false,
+  "commitConvention": "angular",
+  "projectOwner": "kylehuang0323-ai",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 80,
+  "repoHost": "https://github.com",
+  "contributorsPerLine": 7,
+  "projectName": "power-automate-dev-skills",
+  "skipCi": true,
+  "repoType": "github"
+}
